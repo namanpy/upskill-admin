@@ -7,16 +7,35 @@ import {
   Typography,
   Paper,
   IconButton,
+  Checkbox,
+  FormControlLabel,
 } from "@mui/material";
 import { Add, Remove } from "@mui/icons-material";
 import { COURSE_MODE } from "../common/constants/course.constants";
 
+interface FAQ {
+  _id?: string;
+  question: string;
+  answer: string;
+}
+
+interface Chapter {
+  _id?: string;
+  name: string;
+  chapterNumber: number;
+  active: boolean;
+}
+
 interface Topic {
+  _id?: string;
   topicName: string;
-  chapters: string[];
+  week: number;
+  session: number;
+  chapters: Chapter[];
 }
 
 interface CourseData {
+  _id?: string;
   courseName: string;
   category: string;
   courseCode: string;
@@ -30,6 +49,7 @@ interface CourseData {
   certificate: string;
   active: boolean;
   topics: Topic[];
+  faqs: FAQ[];
 }
 
 const AddCourseForm = () => {
@@ -46,7 +66,15 @@ const AddCourseForm = () => {
     brochure: "",
     certificate: "",
     active: true,
-    topics: [{ topicName: "", chapters: [""] }],
+    topics: [
+      {
+        topicName: "",
+        week: 1,
+        session: 1,
+        chapters: [{ name: "", chapterNumber: 1, active: true }],
+      },
+    ],
+    faqs: [{ question: "", answer: "" }],
   });
 
   const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
@@ -55,29 +83,50 @@ const AddCourseForm = () => {
 
   const handleTopicChange = (
     index: number,
-    e: ChangeEvent<HTMLInputElement>
+    field: string,
+    value: string | number
   ) => {
     const newTopics = [...course.topics];
-    if (e.target.name === "topicName") {
-      newTopics[index].topicName = e.target.value;
-    }
+    newTopics[index] = { ...newTopics[index], [field]: value };
     setCourse({ ...course, topics: newTopics });
   };
 
   const handleChapterChange = (
     tIndex: number,
     cIndex: number,
-    e: ChangeEvent<HTMLInputElement>
+    field: string,
+    value: string | number | boolean
   ) => {
     const newTopics = [...course.topics];
-    newTopics[tIndex].chapters[cIndex] = e.target.value;
+    newTopics[tIndex].chapters[cIndex] = {
+      ...newTopics[tIndex].chapters[cIndex],
+      [field]: value,
+    };
     setCourse({ ...course, topics: newTopics });
+  };
+
+  const handleFAQChange = (
+    index: number,
+    field: "question" | "answer",
+    e: ChangeEvent<HTMLInputElement>
+  ) => {
+    const newFAQs = [...course.faqs];
+    newFAQs[index][field] = e.target.value;
+    setCourse({ ...course, faqs: newFAQs });
   };
 
   const addTopic = () => {
     setCourse({
       ...course,
-      topics: [...course.topics, { topicName: "", chapters: [""] }],
+      topics: [
+        ...course.topics,
+        {
+          topicName: "",
+          week: 1,
+          session: 1,
+          chapters: [{ name: "", chapterNumber: 1, active: true }],
+        },
+      ],
     });
   };
 
@@ -88,14 +137,35 @@ const AddCourseForm = () => {
 
   const addChapter = (tIndex: number) => {
     const newTopics = [...course.topics];
-    newTopics[tIndex].chapters.push("");
+    const nextChapterNumber = newTopics[tIndex].chapters.length + 1;
+    newTopics[tIndex].chapters.push({
+      name: "",
+      chapterNumber: nextChapterNumber,
+      active: true,
+    });
     setCourse({ ...course, topics: newTopics });
   };
 
   const removeChapter = (tIndex: number, cIndex: number) => {
     const newTopics = [...course.topics];
     newTopics[tIndex].chapters.splice(cIndex, 1);
+    // Update remaining chapter numbers
+    newTopics[tIndex].chapters.forEach((chapter, idx) => {
+      chapter.chapterNumber = idx + 1;
+    });
     setCourse({ ...course, topics: newTopics });
+  };
+
+  const addFAQ = () => {
+    setCourse({
+      ...course,
+      faqs: [...course.faqs, { question: "", answer: "" }],
+    });
+  };
+
+  const removeFAQ = (index: number) => {
+    const newFAQs = course.faqs.filter((_, i) => i !== index);
+    setCourse({ ...course, faqs: newFAQs });
   };
 
   const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
@@ -216,13 +286,45 @@ const AddCourseForm = () => {
             <TextField
               fullWidth
               label="Topic Name"
-              name="topicName"
               value={topic.topicName}
-              onChange={(e: ChangeEvent<HTMLInputElement>) =>
-                handleTopicChange(tIndex, e)
+              onChange={(e) =>
+                handleTopicChange(tIndex, "topicName", e.target.value)
               }
               required
+              sx={{ mb: 2 }}
             />
+            <TextField
+              select
+              label="Week"
+              value={topic.week}
+              onChange={(e) =>
+                handleTopicChange(tIndex, "week", Number(e.target.value))
+              }
+              sx={{ width: "200px", mr: 2 }}
+              required
+            >
+              {[...Array(52)].map((_, i) => (
+                <MenuItem key={i + 1} value={i + 1}>
+                  Week {i + 1}
+                </MenuItem>
+              ))}
+            </TextField>
+            <TextField
+              select
+              label="Session"
+              value={topic.session}
+              onChange={(e) =>
+                handleTopicChange(tIndex, "session", Number(e.target.value))
+              }
+              sx={{ width: "200px" }}
+              required
+            >
+              {[...Array(10)].map((_, i) => (
+                <MenuItem key={i + 1} value={i + 1}>
+                  Session {i + 1}
+                </MenuItem>
+              ))}
+            </TextField>
             {topic.chapters.map((chapter, cIndex) => (
               <div
                 key={cIndex}
@@ -230,16 +332,33 @@ const AddCourseForm = () => {
                   display: "flex",
                   alignItems: "center",
                   marginTop: "10px",
+                  gap: "10px",
                 }}
               >
                 <TextField
                   fullWidth
-                  label={`Chapter ${cIndex + 1}`}
-                  value={chapter}
-                  onChange={(e: ChangeEvent<HTMLInputElement>) =>
-                    handleChapterChange(tIndex, cIndex, e)
+                  label={`Chapter ${chapter.chapterNumber}`}
+                  value={chapter.name}
+                  onChange={(e) =>
+                    handleChapterChange(tIndex, cIndex, "name", e.target.value)
                   }
                   required
+                />
+                <FormControlLabel
+                  control={
+                    <Checkbox
+                      checked={chapter.active}
+                      onChange={(e) =>
+                        handleChapterChange(
+                          tIndex,
+                          cIndex,
+                          "active",
+                          e.target.checked
+                        )
+                      }
+                    />
+                  }
+                  label="Active"
                 />
                 <IconButton
                   onClick={() => removeChapter(tIndex, cIndex)}
@@ -270,11 +389,53 @@ const AddCourseForm = () => {
         <Button onClick={addTopic} variant="outlined" sx={{ mt: 2 }}>
           Add Topic
         </Button>
+
+        <Typography variant="h6" sx={{ mt: 2 }}>
+          Frequently Asked Questions
+        </Typography>
+        {course.faqs.map((faq, index) => (
+          <Paper key={index} sx={{ p: 2, mt: 2 }}>
+            <TextField
+              fullWidth
+              label="Question"
+              value={faq.question}
+              onChange={(e: ChangeEvent<HTMLInputElement>) =>
+                handleFAQChange(index, "question", e)
+              }
+              required
+              sx={{ mb: 2 }}
+            />
+            <TextField
+              fullWidth
+              label="Answer"
+              value={faq.answer}
+              onChange={(e: ChangeEvent<HTMLInputElement>) =>
+                handleFAQChange(index, "answer", e)
+              }
+              required
+              multiline
+              rows={2}
+            />
+            <Button
+              onClick={() => removeFAQ(index)}
+              variant="contained"
+              color="error"
+              sx={{ mt: 1 }}
+              disabled={course.faqs.length === 1}
+            >
+              Remove FAQ
+            </Button>
+          </Paper>
+        ))}
+        <Button onClick={addFAQ} variant="outlined" sx={{ mt: 2 }}>
+          Add FAQ
+        </Button>
+
         <Button
           type="submit"
           variant="contained"
           color="primary"
-          sx={{ mt: 3 }}
+          sx={{ mt: 3, display: "block" }}
         >
           Submit
         </Button>

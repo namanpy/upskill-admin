@@ -13,6 +13,7 @@ import LoginPage from "./pages/login";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { AuthProvider, useAuth } from "./context/auth.context";
 import AddCourseForm from "./pages/courses";
+import Dashboard from "./pages/dashboard";
 
 const queryClient = new QueryClient();
 
@@ -61,7 +62,7 @@ const AppContent = () => {
             path="/dashboard"
             element={
               <ProtectedRoute>
-                <div>Dashboard</div>
+                <Dashboard />
               </ProtectedRoute>
             }
           />
