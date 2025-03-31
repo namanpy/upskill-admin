@@ -12,6 +12,7 @@ import {
 } from "@mui/material";
 import { Add, Remove } from "@mui/icons-material";
 import { COURSE_MODE } from "../common/constants/course.constants";
+import CategorySearch from "./category/category-search";
 
 interface FAQ {
   _id?: string;
@@ -19,25 +20,27 @@ interface FAQ {
   answer: string;
 }
 
+interface Topic {
+  _id?: string;
+  topicName: string;
+  active: boolean;
+}
+
 interface Chapter {
   _id?: string;
   name: string;
   chapterNumber: number;
-  active: boolean;
-}
-
-interface Topic {
-  _id?: string;
-  topicName: string;
   week: number;
   session: number;
-  chapters: Chapter[];
+  topics: Topic[];
+  active: boolean;
 }
 
 interface CourseData {
   _id?: string;
   courseName: string;
   category: string;
+  categoryName: string;
   courseCode: string;
   courseImage: string;
   courseMode: string;
@@ -48,7 +51,7 @@ interface CourseData {
   brochure: string;
   certificate: string;
   active: boolean;
-  topics: Topic[];
+  chapters: Chapter[];
   faqs: FAQ[];
 }
 
@@ -56,6 +59,7 @@ const AddCourseForm = () => {
   const [course, setCourse] = useState<CourseData>({
     courseName: "",
     category: "",
+    categoryName: "",
     courseCode: "",
     courseImage: "",
     courseMode: "",
@@ -66,12 +70,14 @@ const AddCourseForm = () => {
     brochure: "",
     certificate: "",
     active: true,
-    topics: [
+    chapters: [
       {
-        topicName: "",
+        name: "",
+        chapterNumber: 1,
         week: 1,
         session: 1,
-        chapters: [{ name: "", chapterNumber: 1, active: true }],
+        topics: [{ topicName: "", active: true }],
+        active: true,
       },
     ],
     faqs: [{ question: "", answer: "" }],
@@ -81,28 +87,28 @@ const AddCourseForm = () => {
     setCourse({ ...course, [e.target.name]: e.target.value });
   };
 
-  const handleTopicChange = (
-    index: number,
-    field: string,
-    value: string | number
-  ) => {
-    const newTopics = [...course.topics];
-    newTopics[index] = { ...newTopics[index], [field]: value };
-    setCourse({ ...course, topics: newTopics });
-  };
-
   const handleChapterChange = (
-    tIndex: number,
-    cIndex: number,
+    index: number,
     field: string,
     value: string | number | boolean
   ) => {
-    const newTopics = [...course.topics];
-    newTopics[tIndex].chapters[cIndex] = {
-      ...newTopics[tIndex].chapters[cIndex],
+    const newChapters = [...course.chapters];
+    newChapters[index] = { ...newChapters[index], [field]: value };
+    setCourse({ ...course, chapters: newChapters });
+  };
+
+  const handleTopicChange = (
+    cIndex: number,
+    tIndex: number,
+    field: string,
+    value: string | boolean
+  ) => {
+    const newChapters = [...course.chapters];
+    newChapters[cIndex].topics[tIndex] = {
+      ...newChapters[cIndex].topics[tIndex],
       [field]: value,
     };
-    setCourse({ ...course, topics: newTopics });
+    setCourse({ ...course, chapters: newChapters });
   };
 
   const handleFAQChange = (
@@ -115,45 +121,44 @@ const AddCourseForm = () => {
     setCourse({ ...course, faqs: newFAQs });
   };
 
-  const addTopic = () => {
+  const addChapter = () => {
+    const maxChapterNumber = Math.max(
+      ...course.chapters.map((ch) => ch.chapterNumber),
+      0
+    );
     setCourse({
       ...course,
-      topics: [
-        ...course.topics,
+      chapters: [
+        ...course.chapters,
         {
-          topicName: "",
+          name: "",
+          chapterNumber: maxChapterNumber + 1,
           week: 1,
           session: 1,
-          chapters: [{ name: "", chapterNumber: 1, active: true }],
+          topics: [{ topicName: "", active: true }],
+          active: true,
         },
       ],
     });
   };
 
-  const removeTopic = (index: number) => {
-    const newTopics = course.topics.filter((_, i) => i !== index);
-    setCourse({ ...course, topics: newTopics });
+  const removeChapter = (index: number) => {
+    const newChapters = course.chapters.filter((_, i) => i !== index);
+    setCourse({ ...course, chapters: newChapters });
   };
 
-  const addChapter = (tIndex: number) => {
-    const newTopics = [...course.topics];
-    const nextChapterNumber = newTopics[tIndex].chapters.length + 1;
-    newTopics[tIndex].chapters.push({
-      name: "",
-      chapterNumber: nextChapterNumber,
-      active: true,
-    });
-    setCourse({ ...course, topics: newTopics });
+  const addTopic = (chapterIndex: number) => {
+    const newChapters = [...course.chapters];
+    newChapters[chapterIndex].topics.push({ topicName: "", active: true });
+    setCourse({ ...course, chapters: newChapters });
   };
 
-  const removeChapter = (tIndex: number, cIndex: number) => {
-    const newTopics = [...course.topics];
-    newTopics[tIndex].chapters.splice(cIndex, 1);
-    // Update remaining chapter numbers
-    newTopics[tIndex].chapters.forEach((chapter, idx) => {
-      chapter.chapterNumber = idx + 1;
-    });
-    setCourse({ ...course, topics: newTopics });
+  const removeTopic = (chapterIndex: number, topicIndex: number) => {
+    const newChapters = [...course.chapters];
+    newChapters[chapterIndex].topics = newChapters[chapterIndex].topics.filter(
+      (_, index) => index !== topicIndex
+    );
+    setCourse({ ...course, chapters: newChapters });
   };
 
   const addFAQ = () => {
@@ -168,6 +173,16 @@ const AddCourseForm = () => {
     setCourse({ ...course, faqs: newFAQs });
   };
 
+  const handleCategoryChange = (
+    selectedCategory: { _id: string; categoryName: string } | null
+  ) => {
+    setCourse((prev) => ({
+      ...prev,
+      category: selectedCategory?._id || "",
+      categoryName: selectedCategory?.categoryName || "",
+    }));
+  };
+
   const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     console.log("Course Data Submitted:", course);
@@ -179,6 +194,16 @@ const AddCourseForm = () => {
         Add New Course
       </Typography>
       <form onSubmit={handleSubmit}>
+        <CategorySearch
+          value={
+            course.category
+              ? { _id: course.category, categoryName: course.categoryName }
+              : null
+          }
+          onChange={handleCategoryChange}
+          label="Course Category"
+        />
+
         <TextField
           fullWidth
           label="Course Name"
@@ -279,26 +304,65 @@ const AddCourseForm = () => {
           required
         />
         <Typography variant="h6" sx={{ mt: 2 }}>
-          Topics & Chapters
+          Chapters & Topics
         </Typography>
-        {course.topics.map((topic, tIndex) => (
-          <Paper key={tIndex} sx={{ p: 2, mt: 2 }}>
+        {course.chapters.map((chapter, cIndex) => (
+          <Paper key={cIndex} sx={{ p: 2, mt: 2 }}>
             <TextField
               fullWidth
-              label="Topic Name"
-              value={topic.topicName}
+              label="Chapter Name"
+              value={chapter.name}
               onChange={(e) =>
-                handleTopicChange(tIndex, "topicName", e.target.value)
+                handleChapterChange(cIndex, "name", e.target.value)
               }
               required
               sx={{ mb: 2 }}
             />
+            <div
+              style={{
+                display: "flex",
+                alignItems: "center",
+                gap: "10px",
+                marginRight: "16px",
+              }}
+            >
+              <Typography>Chapter Number:</Typography>
+              <IconButton
+                onClick={() =>
+                  handleChapterChange(
+                    cIndex,
+                    "chapterNumber",
+                    Math.max(1, chapter.chapterNumber - 1)
+                  )
+                }
+                disabled={chapter.chapterNumber <= 1}
+              >
+                <Remove />
+              </IconButton>
+              <Typography>{chapter.chapterNumber}</Typography>
+              <IconButton
+                onClick={() =>
+                  handleChapterChange(
+                    cIndex,
+                    "chapterNumber",
+                    chapter.chapterNumber + 1
+                  )
+                }
+                disabled={course.chapters.some(
+                  (ch, idx) =>
+                    idx !== cIndex &&
+                    ch.chapterNumber === chapter.chapterNumber + 1
+                )}
+              >
+                <Add />
+              </IconButton>
+            </div>
             <TextField
               select
               label="Week"
-              value={topic.week}
+              value={chapter.week}
               onChange={(e) =>
-                handleTopicChange(tIndex, "week", Number(e.target.value))
+                handleChapterChange(cIndex, "week", Number(e.target.value))
               }
               sx={{ width: "200px", mr: 2 }}
               required
@@ -312,11 +376,11 @@ const AddCourseForm = () => {
             <TextField
               select
               label="Session"
-              value={topic.session}
+              value={chapter.session}
               onChange={(e) =>
-                handleTopicChange(tIndex, "session", Number(e.target.value))
+                handleChapterChange(cIndex, "session", Number(e.target.value))
               }
-              sx={{ width: "200px" }}
+              sx={{ width: "200px", mb: 2 }}
               required
             >
               {[...Array(10)].map((_, i) => (
@@ -325,9 +389,13 @@ const AddCourseForm = () => {
                 </MenuItem>
               ))}
             </TextField>
-            {topic.chapters.map((chapter, cIndex) => (
+
+            <Typography variant="subtitle1" sx={{ mt: 2, mb: 1 }}>
+              Topics
+            </Typography>
+            {chapter.topics.map((topic, tIndex) => (
               <div
-                key={cIndex}
+                key={tIndex}
                 style={{
                   display: "flex",
                   alignItems: "center",
@@ -337,21 +405,26 @@ const AddCourseForm = () => {
               >
                 <TextField
                   fullWidth
-                  label={`Chapter ${chapter.chapterNumber}`}
-                  value={chapter.name}
+                  label={`Topic ${tIndex + 1}`}
+                  value={topic.topicName}
                   onChange={(e) =>
-                    handleChapterChange(tIndex, cIndex, "name", e.target.value)
+                    handleTopicChange(
+                      cIndex,
+                      tIndex,
+                      "topicName",
+                      e.target.value
+                    )
                   }
                   required
                 />
                 <FormControlLabel
                   control={
                     <Checkbox
-                      checked={chapter.active}
+                      checked={topic.active}
                       onChange={(e) =>
-                        handleChapterChange(
-                          tIndex,
+                        handleTopicChange(
                           cIndex,
+                          tIndex,
                           "active",
                           e.target.checked
                         )
@@ -361,33 +434,45 @@ const AddCourseForm = () => {
                   label="Active"
                 />
                 <IconButton
-                  onClick={() => removeChapter(tIndex, cIndex)}
-                  disabled={topic.chapters.length === 1}
+                  onClick={() => removeTopic(cIndex, tIndex)}
+                  disabled={chapter.topics.length === 1}
                 >
                   <Remove />
                 </IconButton>
               </div>
             ))}
             <Button
-              onClick={() => addChapter(tIndex)}
+              onClick={() => addTopic(cIndex)}
               variant="outlined"
               sx={{ mt: 1 }}
             >
-              Add Chapter
+              Add Topic
             </Button>
+            <FormControlLabel
+              control={
+                <Checkbox
+                  checked={chapter.active}
+                  onChange={(e) =>
+                    handleChapterChange(cIndex, "active", e.target.checked)
+                  }
+                />
+              }
+              label="Chapter Active"
+              sx={{ ml: 2 }}
+            />
             <Button
-              onClick={() => removeTopic(tIndex)}
+              onClick={() => removeChapter(cIndex)}
               variant="contained"
               color="error"
               sx={{ mt: 1, ml: 1 }}
-              disabled={course.topics.length === 1}
+              disabled={course.chapters.length === 1}
             >
-              Remove Topic
+              Remove Chapter
             </Button>
           </Paper>
         ))}
-        <Button onClick={addTopic} variant="outlined" sx={{ mt: 2 }}>
-          Add Topic
+        <Button onClick={addChapter} variant="outlined" sx={{ mt: 2 }}>
+          Add Chapter
         </Button>
 
         <Typography variant="h6" sx={{ mt: 2 }}>
