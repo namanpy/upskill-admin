@@ -42,13 +42,21 @@ const menuItems: MenuItem[] = [
     ],
   },
   {
+    displayName: "Category",
+    route: "/about",
+    icon: InfoIcon,
+    subItems: [
+      { displayName: "All Categories", route: "/category" },
+      { displayName: "Add Categories", route: "/category/add" },
+    ],
+  },
+  {
     displayName: "Course",
     route: "/about",
     icon: InfoIcon,
     subItems: [
       { displayName: "All Courses", route: "/courses" },
       { displayName: "Add Course", route: "/courses/add" },
-      { displayName: "Categories", route: "/courses/categories" },
     ],
   },
   {

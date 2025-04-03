@@ -14,6 +14,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { AuthProvider, useAuth } from "./context/auth.context";
 import AddCourseForm from "./pages/courses";
 import Dashboard from "./pages/dashboard";
+import CategoryAdd from "./pages/category/category-add";
 
 const queryClient = new QueryClient();
 
@@ -72,6 +73,15 @@ const AppContent = () => {
             element={
               <ProtectedRoute>
                 <AddCourseForm />
+              </ProtectedRoute>
+            }
+          />
+
+          <Route
+            path="/category/add"
+            element={
+              <ProtectedRoute>
+                <CategoryAdd />
               </ProtectedRoute>
             }
           />

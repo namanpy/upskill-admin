@@ -29,6 +29,54 @@ interface CategoryQueryParams {
   limit?: number;
 }
 
+interface AddCategoryRequest {
+  categoryName: string;
+  categoryCode: string;
+  categoryImage: string;
+  categoryDescription: string;
+  featured: boolean;
+  active?: boolean;
+}
+
+interface AddCategoryResponse {
+  isSuccess: boolean;
+}
+
+interface AddCourseRequest {
+  courseName: string;
+  category: string;
+  categoryName: string;
+  courseCode: string;
+  courseImage: string;
+  courseMode: string;
+  courseDuration: number;
+  originalPrice: number;
+  discountedPrice: number;
+  youtubeUrl: string | null;
+  brochure: string;
+  certificate: string;
+  active: boolean;
+  chapters: {
+    name: string;
+    chapterNumber: number;
+    week: number;
+    session: number;
+    topics: {
+      topicName: string;
+      active: boolean;
+    }[];
+    active: boolean;
+  }[];
+  faqs: {
+    question: string;
+    answer: string;
+  }[];
+}
+
+interface AddCourseResponse {
+  isSuccess: boolean;
+}
+
 class ApiClient {
   private baseUrl: string;
 
@@ -47,6 +95,24 @@ class ApiClient {
 
     if (!response.ok) {
       throw new Error(`Login failed: ${response.statusText}`);
+    }
+
+    return response.json();
+  }
+
+  async addCategory(
+    categoryData: AddCategoryRequest
+  ): Promise<AddCategoryResponse> {
+    const response = await fetch(`${this.baseUrl}/category`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(categoryData),
+    });
+
+    if (!response.ok) {
+      throw new Error(`Failed to add category: ${response.statusText}`);
     }
 
     return response.json();
@@ -78,6 +144,23 @@ class ApiClient {
 
     if (!response.ok) {
       throw new Error(`Failed to fetch categories: ${response.statusText}`);
+    }
+
+    return response.json();
+  }
+
+  async addCourse(courseData: AddCourseRequest): Promise<AddCourseResponse> {
+    const response = await fetch(`${this.baseUrl}/course`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(courseData),
+    });
+
+    if (!response.ok) {
+      console.error("Response error:", await response.json());
+      throw new Error(`Failed to add course: await response.text()`);
     }
 
     return response.json();

@@ -9,10 +9,16 @@ import {
   IconButton,
   Checkbox,
   FormControlLabel,
+  Box,
+  Snackbar,
+  Alert,
 } from "@mui/material";
 import { Add, Remove } from "@mui/icons-material";
 import { COURSE_MODE } from "../common/constants/course.constants";
 import CategorySearch from "./category/category-search";
+import { useMutation } from "@tanstack/react-query";
+import apiClient from "../repo/api";
+import { useNavigate } from "react-router-dom";
 
 interface FAQ {
   _id?: string;
@@ -56,6 +62,8 @@ interface CourseData {
 }
 
 const AddCourseForm = () => {
+  const navigate = useNavigate();
+  const [openSnackbar, setOpenSnackbar] = useState(false);
   const [course, setCourse] = useState<CourseData>({
     courseName: "",
     category: "",
@@ -82,6 +90,39 @@ const AddCourseForm = () => {
     ],
     faqs: [{ question: "", answer: "" }],
   });
+  const [error, setError] = useState<string>("");
+
+  const addCourseMutation = useMutation({
+    mutationFn: (courseData: typeof course) => {
+      // Convert string values to numbers for API
+      const apiCourseData = {
+        ...courseData,
+        courseDuration: Number(courseData.courseDuration),
+        originalPrice: Number(courseData.originalPrice),
+        discountedPrice: Number(courseData.discountedPrice),
+        youtubeUrl: courseData.youtubeUrl || null,
+      };
+      return apiClient.addCourse(apiCourseData);
+    },
+    onSuccess: () => {
+      setOpenSnackbar(true);
+      setTimeout(() => {
+        navigate("/courses"); // Adjust path as needed
+      }, 2000);
+    },
+    onError: (error: any) => {
+      setOpenSnackbar(true);
+      const errorMessage =
+        error.response?.data?.message ||
+        "An error occurred while adding the course";
+      setError(errorMessage);
+    },
+  });
+
+  const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    addCourseMutation.mutate(course);
+  };
 
   const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
     setCourse({ ...course, [e.target.name]: e.target.value });
@@ -183,348 +224,459 @@ const AddCourseForm = () => {
     }));
   };
 
-  const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    console.log("Course Data Submitted:", course);
-  };
-
   return (
-    <Container component={Paper} sx={{ p: 3, mt: 3 }}>
-      <Typography variant="h5" gutterBottom>
+    <Container
+      maxWidth="lg"
+      component={Paper}
+      sx={{ p: 4, mt: 4, borderRadius: 2 }}
+    >
+      <Typography
+        variant="h4"
+        gutterBottom
+        sx={{ mb: 4, fontWeight: "medium" }}
+      >
         Add New Course
       </Typography>
       <form onSubmit={handleSubmit}>
-        <CategorySearch
-          value={
-            course.category
-              ? { _id: course.category, categoryName: course.categoryName }
-              : null
-          }
-          onChange={handleCategoryChange}
-          label="Course Category"
-        />
+        <Box sx={{ display: "grid", gap: 3 }}>
+          <CategorySearch
+            value={
+              course.category
+                ? { _id: course.category, categoryName: course.categoryName }
+                : null
+            }
+            onChange={handleCategoryChange}
+            label="Course Category"
+          />
 
-        <TextField
-          fullWidth
-          label="Course Name"
-          name="courseName"
-          value={course.courseName}
-          onChange={handleChange}
-          margin="normal"
-          required
-        />
-        <TextField
-          fullWidth
-          label="Course Code"
-          name="courseCode"
-          value={course.courseCode}
-          onChange={handleChange}
-          margin="normal"
-          required
-        />
-        <TextField
-          fullWidth
-          label="Course Image URL"
-          name="courseImage"
-          value={course.courseImage}
-          onChange={handleChange}
-          margin="normal"
-          required
-        />
-        <TextField
-          select
-          fullWidth
-          label="Course Mode"
-          name="courseMode"
-          value={course.courseMode}
-          onChange={handleChange}
-          margin="normal"
-          required
-        >
-          {Object.keys(COURSE_MODE).map((mode) => (
-            <MenuItem key={mode} value={mode}>
-              {mode}
-            </MenuItem>
-          ))}
-        </TextField>
-        <TextField
-          fullWidth
-          type="number"
-          label="Course Duration (hours)"
-          name="courseDuration"
-          value={course.courseDuration}
-          onChange={handleChange}
-          margin="normal"
-          required
-        />
-        <TextField
-          fullWidth
-          type="number"
-          label="Original Price"
-          name="originalPrice"
-          value={course.originalPrice}
-          onChange={handleChange}
-          margin="normal"
-          required
-        />
-        <TextField
-          fullWidth
-          type="number"
-          label="Discounted Price"
-          name="discountedPrice"
-          value={course.discountedPrice}
-          onChange={handleChange}
-          margin="normal"
-          required
-        />
-        <TextField
-          fullWidth
-          label="YouTube URL"
-          name="youtubeUrl"
-          value={course.youtubeUrl}
-          onChange={handleChange}
-          margin="normal"
-        />
-        <TextField
-          fullWidth
-          label="Brochure URL"
-          name="brochure"
-          value={course.brochure}
-          onChange={handleChange}
-          margin="normal"
-          required
-        />
-        <TextField
-          fullWidth
-          label="Certificate URL"
-          name="certificate"
-          value={course.certificate}
-          onChange={handleChange}
-          margin="normal"
-          required
-        />
-        <Typography variant="h6" sx={{ mt: 2 }}>
-          Chapters & Topics
-        </Typography>
-        {course.chapters.map((chapter, cIndex) => (
-          <Paper key={cIndex} sx={{ p: 2, mt: 2 }}>
+          <Box
+            sx={{
+              display: "grid",
+              gridTemplateColumns: "repeat(2, 1fr)",
+              gap: 3,
+            }}
+          >
             <TextField
               fullWidth
-              label="Chapter Name"
-              value={chapter.name}
-              onChange={(e) =>
-                handleChapterChange(cIndex, "name", e.target.value)
-              }
+              label="Course Name"
+              name="courseName"
+              value={course.courseName}
+              onChange={handleChange}
               required
-              sx={{ mb: 2 }}
+              variant="outlined"
             />
-            <div
-              style={{
-                display: "flex",
-                alignItems: "center",
-                gap: "10px",
-                marginRight: "16px",
-              }}
-            >
-              <Typography>Chapter Number:</Typography>
-              <IconButton
-                onClick={() =>
-                  handleChapterChange(
-                    cIndex,
-                    "chapterNumber",
-                    Math.max(1, chapter.chapterNumber - 1)
-                  )
-                }
-                disabled={chapter.chapterNumber <= 1}
-              >
-                <Remove />
-              </IconButton>
-              <Typography>{chapter.chapterNumber}</Typography>
-              <IconButton
-                onClick={() =>
-                  handleChapterChange(
-                    cIndex,
-                    "chapterNumber",
-                    chapter.chapterNumber + 1
-                  )
-                }
-                disabled={course.chapters.some(
-                  (ch, idx) =>
-                    idx !== cIndex &&
-                    ch.chapterNumber === chapter.chapterNumber + 1
-                )}
-              >
-                <Add />
-              </IconButton>
-            </div>
             <TextField
-              select
-              label="Week"
-              value={chapter.week}
-              onChange={(e) =>
-                handleChapterChange(cIndex, "week", Number(e.target.value))
-              }
-              sx={{ width: "200px", mr: 2 }}
+              fullWidth
+              label="Course Code"
+              name="courseCode"
+              value={course.courseCode}
+              onChange={handleChange}
               required
-            >
-              {[...Array(52)].map((_, i) => (
-                <MenuItem key={i + 1} value={i + 1}>
-                  Week {i + 1}
-                </MenuItem>
-              ))}
-            </TextField>
-            <TextField
-              select
-              label="Session"
-              value={chapter.session}
-              onChange={(e) =>
-                handleChapterChange(cIndex, "session", Number(e.target.value))
-              }
-              sx={{ width: "200px", mb: 2 }}
-              required
-            >
-              {[...Array(10)].map((_, i) => (
-                <MenuItem key={i + 1} value={i + 1}>
-                  Session {i + 1}
-                </MenuItem>
-              ))}
-            </TextField>
+              variant="outlined"
+            />
+          </Box>
 
-            <Typography variant="subtitle1" sx={{ mt: 2, mb: 1 }}>
-              Topics
+          <Box
+            sx={{
+              display: "grid",
+              gridTemplateColumns: "repeat(2, 1fr)",
+              gap: 3,
+            }}
+          >
+            <TextField
+              fullWidth
+              label="Course Image URL"
+              name="courseImage"
+              value={course.courseImage}
+              onChange={handleChange}
+              required
+              variant="outlined"
+            />
+            <TextField
+              select
+              fullWidth
+              label="Course Mode"
+              name="courseMode"
+              value={course.courseMode}
+              onChange={handleChange}
+              required
+              variant="outlined"
+            >
+              {Object.keys(COURSE_MODE).map((mode) => (
+                <MenuItem key={mode} value={mode}>
+                  {mode}
+                </MenuItem>
+              ))}
+            </TextField>
+          </Box>
+
+          <Box
+            sx={{
+              display: "grid",
+              gridTemplateColumns: "repeat(3, 1fr)",
+              gap: 3,
+            }}
+          >
+            <TextField
+              fullWidth
+              type="number"
+              label="Course Duration (hours)"
+              name="courseDuration"
+              value={course.courseDuration}
+              onChange={handleChange}
+              required
+              variant="outlined"
+            />
+            <TextField
+              fullWidth
+              type="number"
+              label="Original Price"
+              name="originalPrice"
+              value={course.originalPrice}
+              onChange={handleChange}
+              required
+              variant="outlined"
+            />
+            <TextField
+              fullWidth
+              type="number"
+              label="Discounted Price"
+              name="discountedPrice"
+              value={course.discountedPrice}
+              onChange={handleChange}
+              required
+              variant="outlined"
+            />
+          </Box>
+
+          <Box
+            sx={{
+              display: "grid",
+              gridTemplateColumns: "repeat(3, 1fr)",
+              gap: 3,
+            }}
+          >
+            <TextField
+              fullWidth
+              label="YouTube URL"
+              name="youtubeUrl"
+              value={course.youtubeUrl}
+              onChange={handleChange}
+              variant="outlined"
+            />
+            <TextField
+              fullWidth
+              label="Brochure URL"
+              name="brochure"
+              value={course.brochure}
+              onChange={handleChange}
+              required
+              variant="outlined"
+            />
+            <TextField
+              fullWidth
+              label="Certificate URL"
+              name="certificate"
+              value={course.certificate}
+              onChange={handleChange}
+              required
+              variant="outlined"
+            />
+          </Box>
+
+          <Box sx={{ mt: 4 }}>
+            <Typography variant="h5" sx={{ mb: 3, fontWeight: "medium" }}>
+              Chapters & Topics
             </Typography>
-            {chapter.topics.map((topic, tIndex) => (
-              <div
-                key={tIndex}
-                style={{
-                  display: "flex",
-                  alignItems: "center",
-                  marginTop: "10px",
-                  gap: "10px",
+            {course.chapters.map((chapter, cIndex) => (
+              <Paper
+                key={cIndex}
+                sx={{
+                  p: 3,
+                  mb: 3,
+                  borderRadius: 2,
+                  bgcolor: "background.default",
                 }}
               >
-                <TextField
-                  fullWidth
-                  label={`Topic ${tIndex + 1}`}
-                  value={topic.topicName}
-                  onChange={(e) =>
-                    handleTopicChange(
-                      cIndex,
-                      tIndex,
-                      "topicName",
-                      e.target.value
-                    )
-                  }
-                  required
-                />
-                <FormControlLabel
-                  control={
-                    <Checkbox
-                      checked={topic.active}
-                      onChange={(e) =>
-                        handleTopicChange(
+                <Box sx={{ display: "grid", gap: 3 }}>
+                  <TextField
+                    fullWidth
+                    label="Chapter Name"
+                    value={chapter.name}
+                    onChange={(e) =>
+                      handleChapterChange(cIndex, "name", e.target.value)
+                    }
+                    required
+                    variant="outlined"
+                  />
+
+                  <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
+                    <Typography variant="subtitle1">Chapter Number:</Typography>
+                    <IconButton
+                      onClick={() =>
+                        handleChapterChange(
                           cIndex,
-                          tIndex,
-                          "active",
-                          e.target.checked
+                          "chapterNumber",
+                          Math.max(1, chapter.chapterNumber - 1)
                         )
                       }
+                      disabled={chapter.chapterNumber <= 1}
+                      size="small"
+                    >
+                      <Remove />
+                    </IconButton>
+                    <Typography variant="h6">
+                      {chapter.chapterNumber}
+                    </Typography>
+                    <IconButton
+                      onClick={() =>
+                        handleChapterChange(
+                          cIndex,
+                          "chapterNumber",
+                          chapter.chapterNumber + 1
+                        )
+                      }
+                      disabled={course.chapters.some(
+                        (ch, idx) =>
+                          idx !== cIndex &&
+                          ch.chapterNumber === chapter.chapterNumber + 1
+                      )}
+                      size="small"
+                    >
+                      <Add />
+                    </IconButton>
+                  </Box>
+
+                  <Box sx={{ display: "flex", gap: 3 }}>
+                    <TextField
+                      select
+                      label="Week"
+                      value={chapter.week}
+                      onChange={(e) =>
+                        handleChapterChange(
+                          cIndex,
+                          "week",
+                          Number(e.target.value)
+                        )
+                      }
+                      required
+                      sx={{ width: "200px" }}
+                    >
+                      {[...Array(52)].map((_, i) => (
+                        <MenuItem key={i + 1} value={i + 1}>
+                          Week {i + 1}
+                        </MenuItem>
+                      ))}
+                    </TextField>
+                    <TextField
+                      select
+                      label="Session"
+                      value={chapter.session}
+                      onChange={(e) =>
+                        handleChapterChange(
+                          cIndex,
+                          "session",
+                          Number(e.target.value)
+                        )
+                      }
+                      required
+                      sx={{ width: "200px" }}
+                    >
+                      {[...Array(10)].map((_, i) => (
+                        <MenuItem key={i + 1} value={i + 1}>
+                          Session {i + 1}
+                        </MenuItem>
+                      ))}
+                    </TextField>
+                  </Box>
+
+                  <Box sx={{ mt: 2 }}>
+                    <Typography variant="h6" sx={{ mb: 2 }}>
+                      Topics
+                    </Typography>
+                    <Box sx={{ display: "grid", gap: 2 }}>
+                      {chapter.topics.map((topic, tIndex) => (
+                        <Box
+                          key={tIndex}
+                          sx={{
+                            display: "flex",
+                            alignItems: "center",
+                            gap: 2,
+                            bgcolor: "background.paper",
+                            p: 2,
+                            borderRadius: 1,
+                          }}
+                        >
+                          <TextField
+                            fullWidth
+                            label={`Topic ${tIndex + 1}`}
+                            value={topic.topicName}
+                            onChange={(e) =>
+                              handleTopicChange(
+                                cIndex,
+                                tIndex,
+                                "topicName",
+                                e.target.value
+                              )
+                            }
+                            required
+                            variant="outlined"
+                            size="small"
+                          />
+                          <FormControlLabel
+                            control={
+                              <Checkbox
+                                checked={topic.active}
+                                onChange={(e) =>
+                                  handleTopicChange(
+                                    cIndex,
+                                    tIndex,
+                                    "active",
+                                    e.target.checked
+                                  )
+                                }
+                                size="small"
+                              />
+                            }
+                            label="Active"
+                          />
+                          <IconButton
+                            onClick={() => removeTopic(cIndex, tIndex)}
+                            disabled={chapter.topics.length === 1}
+                            size="small"
+                          >
+                            <Remove />
+                          </IconButton>
+                        </Box>
+                      ))}
+                    </Box>
+                    <Button
+                      onClick={() => addTopic(cIndex)}
+                      variant="outlined"
+                      sx={{ mt: 2 }}
+                      startIcon={<Add />}
+                    >
+                      Add Topic
+                    </Button>
+                  </Box>
+
+                  <Box
+                    sx={{
+                      display: "flex",
+                      justifyContent: "space-between",
+                      alignItems: "center",
+                      mt: 2,
+                    }}
+                  >
+                    <FormControlLabel
+                      control={
+                        <Checkbox
+                          checked={chapter.active}
+                          onChange={(e) =>
+                            handleChapterChange(
+                              cIndex,
+                              "active",
+                              e.target.checked
+                            )
+                          }
+                        />
+                      }
+                      label="Chapter Active"
                     />
-                  }
-                  label="Active"
-                />
-                <IconButton
-                  onClick={() => removeTopic(cIndex, tIndex)}
-                  disabled={chapter.topics.length === 1}
-                >
-                  <Remove />
-                </IconButton>
-              </div>
+                    <Button
+                      onClick={() => removeChapter(cIndex)}
+                      variant="contained"
+                      color="error"
+                      disabled={course.chapters.length === 1}
+                      startIcon={<Remove />}
+                    >
+                      Remove Chapter
+                    </Button>
+                  </Box>
+                </Box>
+              </Paper>
             ))}
-            <Button
-              onClick={() => addTopic(cIndex)}
-              variant="outlined"
-              sx={{ mt: 1 }}
-            >
-              Add Topic
+            <Button onClick={addChapter} variant="outlined" startIcon={<Add />}>
+              Add Chapter
             </Button>
-            <FormControlLabel
-              control={
-                <Checkbox
-                  checked={chapter.active}
-                  onChange={(e) =>
-                    handleChapterChange(cIndex, "active", e.target.checked)
-                  }
-                />
-              }
-              label="Chapter Active"
-              sx={{ ml: 2 }}
-            />
-            <Button
-              onClick={() => removeChapter(cIndex)}
-              variant="contained"
-              color="error"
-              sx={{ mt: 1, ml: 1 }}
-              disabled={course.chapters.length === 1}
-            >
-              Remove Chapter
-            </Button>
-          </Paper>
-        ))}
-        <Button onClick={addChapter} variant="outlined" sx={{ mt: 2 }}>
-          Add Chapter
-        </Button>
+          </Box>
 
-        <Typography variant="h6" sx={{ mt: 2 }}>
-          Frequently Asked Questions
-        </Typography>
-        {course.faqs.map((faq, index) => (
-          <Paper key={index} sx={{ p: 2, mt: 2 }}>
-            <TextField
-              fullWidth
-              label="Question"
-              value={faq.question}
-              onChange={(e: ChangeEvent<HTMLInputElement>) =>
-                handleFAQChange(index, "question", e)
-              }
-              required
-              sx={{ mb: 2 }}
-            />
-            <TextField
-              fullWidth
-              label="Answer"
-              value={faq.answer}
-              onChange={(e: ChangeEvent<HTMLInputElement>) =>
-                handleFAQChange(index, "answer", e)
-              }
-              required
-              multiline
-              rows={2}
-            />
-            <Button
-              onClick={() => removeFAQ(index)}
-              variant="contained"
-              color="error"
-              sx={{ mt: 1 }}
-              disabled={course.faqs.length === 1}
-            >
-              Remove FAQ
+          <Box sx={{ mt: 4 }}>
+            <Typography variant="h5" sx={{ mb: 3, fontWeight: "medium" }}>
+              Frequently Asked Questions
+            </Typography>
+            {course.faqs.map((faq, index) => (
+              <Paper
+                key={index}
+                sx={{
+                  p: 3,
+                  mb: 3,
+                  borderRadius: 2,
+                  bgcolor: "background.default",
+                }}
+              >
+                <Box sx={{ display: "grid", gap: 3 }}>
+                  <TextField
+                    fullWidth
+                    label="Question"
+                    value={faq.question}
+                    onChange={(e: ChangeEvent<HTMLInputElement>) =>
+                      handleFAQChange(index, "question", e)
+                    }
+                    required
+                    variant="outlined"
+                  />
+                  <TextField
+                    fullWidth
+                    label="Answer"
+                    value={faq.answer}
+                    onChange={(e: ChangeEvent<HTMLInputElement>) =>
+                      handleFAQChange(index, "answer", e)
+                    }
+                    required
+                    multiline
+                    rows={3}
+                    variant="outlined"
+                  />
+                  <Button
+                    onClick={() => removeFAQ(index)}
+                    variant="contained"
+                    color="error"
+                    disabled={course.faqs.length === 1}
+                    startIcon={<Remove />}
+                  >
+                    Remove FAQ
+                  </Button>
+                </Box>
+              </Paper>
+            ))}
+            <Button onClick={addFAQ} variant="outlined" startIcon={<Add />}>
+              Add FAQ
             </Button>
-          </Paper>
-        ))}
-        <Button onClick={addFAQ} variant="outlined" sx={{ mt: 2 }}>
-          Add FAQ
-        </Button>
+          </Box>
 
-        <Button
-          type="submit"
-          variant="contained"
-          color="primary"
-          sx={{ mt: 3, display: "block" }}
-        >
-          Submit
-        </Button>
+          <Button
+            type="submit"
+            variant="contained"
+            color="primary"
+            size="large"
+            sx={{ mt: 4, py: 1.5 }}
+            disabled={addCourseMutation.isPending}
+          >
+            {addCourseMutation.isPending ? "Submitting..." : "Submit Course"}
+          </Button>
+        </Box>
       </form>
+
+      <Snackbar
+        open={openSnackbar}
+        autoHideDuration={2000}
+        onClose={() => setOpenSnackbar(false)}
+      >
+        <Alert severity={error ? "error" : "success"} sx={{ width: "100%" }}>
+          {error || "Course added successfully!"}
+        </Alert>
+      </Snackbar>
     </Container>
   );
 };
