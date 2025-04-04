@@ -29,6 +29,27 @@ interface CategoryQueryParams {
   limit?: number;
 }
 
+interface FaqDto {
+  question: string;
+  answer: string;
+}
+
+interface TopicDto {
+  _id?: string;
+  topicName: string;
+  active: boolean;
+}
+
+interface ChapterDto {
+  _id?: string;
+  name: string;
+  chapterNumber: number;
+  week: number;
+  session: number;
+  topics: TopicDto[];
+  active: boolean;
+}
+
 interface AddCategoryRequest {
   categoryName: string;
   categoryCode: string;
@@ -56,25 +77,94 @@ interface AddCourseRequest {
   brochure: string;
   certificate: string;
   active: boolean;
-  chapters: {
-    name: string;
-    chapterNumber: number;
-    week: number;
-    session: number;
-    topics: {
-      topicName: string;
-      active: boolean;
-    }[];
-    active: boolean;
-  }[];
-  faqs: {
-    question: string;
-    answer: string;
-  }[];
+  chapters: ChapterDto[];
+  faqs: FaqDto[];
 }
 
 interface AddCourseResponse {
   isSuccess: boolean;
+}
+
+interface GetCourseByCodeRequestDto {
+  courseCode: string;
+}
+
+interface GetCourseByCodeResponseDto {
+  _id: string;
+  courseName: string;
+  category: string;
+  categoryName: string;
+  courseCode: string;
+  courseImage: string;
+  courseMode: string;
+  courseDuration: number;
+  originalPrice: number;
+  discountedPrice: number;
+  youtubeUrl: string | null;
+  brochure: string;
+  certificate: string;
+  active: boolean;
+  chapters: ChapterDto[];
+  faqs: FaqDto[];
+}
+
+interface UpdateCourseRequestDto {
+  courseId: string;
+  courseName?: string;
+  category?: string;
+  categoryName?: string;
+  courseCode?: string;
+  courseImage?: string;
+  courseMode?: string;
+  courseDuration?: number;
+  originalPrice?: number;
+  discountedPrice?: number;
+  youtubeUrl?: string | null;
+  brochure?: string;
+  certificate?: string;
+  active?: boolean;
+  chapters?: ChapterDto[];
+  faqs?: FaqDto[];
+}
+
+interface UpdateCourseResponseDto {
+  isSuccess: boolean;
+}
+
+interface SortOption {
+  field: string;
+  order: "asc" | "desc";
+}
+
+interface GetCourseDisplayRequest {
+  skip?: number;
+  limit?: number;
+  sort?: SortOption[];
+  categoryIds?: string[];
+  search?: string;
+}
+
+interface CourseDisplay {
+  _id: string;
+  courseName: string;
+  category: Category;
+  courseCode: string;
+  courseImage: string;
+  courseMode: string;
+  courseDuration: number;
+  originalPrice: number;
+  discountedPrice: number;
+  youtubeUrl?: any;
+  brochure: string;
+  certificate: string;
+  active: boolean;
+  seatsAvailable: number;
+  courseRating: number;
+}
+
+interface GetCourseDisplayResponse {
+  data: CourseDisplay[];
+  count: number;
 }
 
 class ApiClient {
@@ -160,7 +250,69 @@ class ApiClient {
 
     if (!response.ok) {
       console.error("Response error:", await response.json());
-      throw new Error(`Failed to add course: await response.text()`);
+      throw new Error(`Failed to add course: ${await response.text()}`);
+    }
+
+    return response.json();
+  }
+
+  async getCourseByCode(
+    input: GetCourseByCodeRequestDto
+  ): Promise<GetCourseByCodeResponseDto> {
+    const response = await fetch(
+      `${this.baseUrl}/course/code/${input.courseCode}`,
+      {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      }
+    );
+
+    if (!response.ok) {
+      throw new Error(`Failed to fetch course: ${response.statusText}`);
+    }
+
+    return response.json();
+  }
+
+  async updateCourse(
+    courseData: UpdateCourseRequestDto
+  ): Promise<UpdateCourseResponseDto> {
+    const { courseId, ...courseDataWithoutId } = courseData;
+    const response = await fetch(
+      `${this.baseUrl}/course/${courseData.courseId}`,
+      {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(courseDataWithoutId),
+      }
+    );
+
+    console.log("Response:", await response.json());
+    if (!response.ok) {
+      throw new Error(`Failed to update course: ${response.statusText}`);
+    }
+
+    return response.json();
+  }
+
+  async getCourseDisplay(
+    params: GetCourseDisplayRequest
+  ): Promise<GetCourseDisplayResponse> {
+    console.log("Params:", JSON.stringify(params)); // Add this line to log the params object
+    const response = await fetch(`${this.baseUrl}/course/display`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(params),
+    });
+
+    if (!response.ok) {
+      throw new Error(`Failed to fetch course display: ${response.statusText}`);
     }
 
     return response.json();

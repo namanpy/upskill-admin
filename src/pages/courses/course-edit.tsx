@@ -1,4 +1,4 @@
-import { useState, ChangeEvent, FormEvent } from "react";
+import { useState, ChangeEvent, FormEvent, useEffect } from "react";
 import {
   Container,
   TextField,
@@ -12,13 +12,14 @@ import {
   Box,
   Snackbar,
   Alert,
+  CircularProgress,
 } from "@mui/material";
 import { Add, Remove } from "@mui/icons-material";
-import { COURSE_MODE } from "../common/constants/course.constants";
-import CategorySearch from "./category/category-search";
-import { useMutation } from "@tanstack/react-query";
-import apiClient from "../repo/api";
-import { useNavigate } from "react-router-dom";
+import { COURSE_MODE } from "../../common/constants/course.constants";
+import CategorySearch from "../category/category-search";
+import { useMutation, useQuery } from "@tanstack/react-query";
+import apiClient from "../../repo/api";
+import { useNavigate, useParams } from "react-router-dom";
 
 interface FAQ {
   _id?: string;
@@ -42,8 +43,8 @@ interface Chapter {
   active: boolean;
 }
 
-interface CourseData {
-  _id?: string;
+export interface CourseData {
+  _id: string;
   courseName: string;
   category: string;
   categoryName: string;
@@ -53,7 +54,7 @@ interface CourseData {
   courseDuration: string;
   originalPrice: string;
   discountedPrice: string;
-  youtubeUrl: string;
+  youtubeUrl: string | null;
   brochure: string;
   certificate: string;
   active: boolean;
@@ -61,10 +62,22 @@ interface CourseData {
   faqs: FAQ[];
 }
 
-const AddCourseForm = () => {
+const CourseEditForm = () => {
+  const { courseCode } = useParams<{ courseCode: string }>();
   const navigate = useNavigate();
   const [openSnackbar, setOpenSnackbar] = useState(false);
+  const [error, setError] = useState<string>("");
+
+  // Fetch course data
+  const { data: courseData, isLoading } = useQuery({
+    queryKey: ["course", courseCode],
+    queryFn: () => apiClient.getCourseByCode({ courseCode: courseCode! }),
+    enabled: !!courseCode,
+  });
+
+  // Initialize state with empty course data
   const [course, setCourse] = useState<CourseData>({
+    _id: "",
     courseName: "",
     category: "",
     categoryName: "",
@@ -90,39 +103,47 @@ const AddCourseForm = () => {
     ],
     faqs: [{ question: "", answer: "" }],
   });
-  const [error, setError] = useState<string>("");
 
-  const addCourseMutation = useMutation({
-    mutationFn: (courseData: typeof course) => {
-      // Convert string values to numbers for API
+  // Update state when course data is fetched
+  useEffect(() => {
+    if (courseData) {
+      setCourse({
+        ...courseData,
+        courseDuration: courseData.courseDuration.toString(),
+        originalPrice: courseData.originalPrice.toString(),
+        discountedPrice: courseData.discountedPrice.toString(),
+      });
+    }
+  }, [courseData]);
+
+  const updateCourseMutation = useMutation({
+    mutationFn: (courseData: CourseData) => {
       const apiCourseData = {
         ...courseData,
+        courseId: courseData._id!,
         courseDuration: Number(courseData.courseDuration),
         originalPrice: Number(courseData.originalPrice),
         discountedPrice: Number(courseData.discountedPrice),
         youtubeUrl: courseData.youtubeUrl || null,
       };
-      return apiClient.addCourse(apiCourseData);
+
+      return apiClient.updateCourse(apiCourseData);
     },
     onSuccess: () => {
+      setError("");
       setOpenSnackbar(true);
       setTimeout(() => {
-        navigate("/courses"); // Adjust path as needed
+        navigate("/courses");
       }, 2000);
     },
     onError: (error: any) => {
       setOpenSnackbar(true);
       const errorMessage =
         error.response?.data?.message ||
-        "An error occurred while adding the course";
+        "An error occurred while updating the course";
       setError(errorMessage);
     },
   });
-
-  const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    addCourseMutation.mutate(course);
-  };
 
   const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
     setCourse({ ...course, [e.target.name]: e.target.value });
@@ -224,6 +245,19 @@ const AddCourseForm = () => {
     }));
   };
 
+  const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    updateCourseMutation.mutate(course);
+  };
+
+  if (isLoading) {
+    return (
+      <Box sx={{ display: "flex", justifyContent: "center", mt: 4 }}>
+        <CircularProgress />
+      </Box>
+    );
+  }
+
   return (
     <Container
       maxWidth="lg"
@@ -235,7 +269,7 @@ const AddCourseForm = () => {
         gutterBottom
         sx={{ mb: 4, fontWeight: "medium" }}
       >
-        Add New Course
+        Edit Course
       </Typography>
       <form onSubmit={handleSubmit}>
         <Box sx={{ display: "grid", gap: 3 }}>
@@ -661,9 +695,9 @@ const AddCourseForm = () => {
             color="primary"
             size="large"
             sx={{ mt: 4, py: 1.5 }}
-            disabled={addCourseMutation.isPending}
+            disabled={updateCourseMutation.isPending}
           >
-            {addCourseMutation.isPending ? "Submitting..." : "Submit Course"}
+            {updateCourseMutation.isPending ? "Submitting..." : "Submit Course"}
           </Button>
         </Box>
       </form>
@@ -674,11 +708,11 @@ const AddCourseForm = () => {
         onClose={() => setOpenSnackbar(false)}
       >
         <Alert severity={error ? "error" : "success"} sx={{ width: "100%" }}>
-          {error || "Course added successfully!"}
+          {error || "Course updated successfully!"}
         </Alert>
       </Snackbar>
     </Container>
   );
 };
 
-export default AddCourseForm;
+export default CourseEditForm;

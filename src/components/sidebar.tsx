@@ -11,7 +11,8 @@ import {
 } from "@mui/material";
 import MenuIcon from "@mui/icons-material/Menu";
 import HomeIcon from "@mui/icons-material/Home";
-import InfoIcon from "@mui/icons-material/Info";
+import CategoryIcon from "@mui/icons-material/Category";
+import SchoolIcon from "@mui/icons-material/School";
 import SettingsIcon from "@mui/icons-material/Settings";
 import ExpandLess from "@mui/icons-material/ExpandLess";
 import ExpandMore from "@mui/icons-material/ExpandMore";
@@ -44,18 +45,18 @@ const menuItems: MenuItem[] = [
   {
     displayName: "Category",
     route: "/about",
-    icon: InfoIcon,
+    icon: CategoryIcon,
     subItems: [
-      { displayName: "All Categories", route: "/category" },
+      { displayName: "All Categories", route: "/category/list" },
       { displayName: "Add Categories", route: "/category/add" },
     ],
   },
   {
     displayName: "Course",
     route: "/about",
-    icon: InfoIcon,
+    icon: SchoolIcon,
     subItems: [
-      { displayName: "All Courses", route: "/courses" },
+      { displayName: "All Courses", route: "/courses/list" },
       { displayName: "Add Course", route: "/courses/add" },
     ],
   },

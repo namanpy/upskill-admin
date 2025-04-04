@@ -12,9 +12,12 @@ import { useState, useEffect } from "react";
 import LoginPage from "./pages/login";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { AuthProvider, useAuth } from "./context/auth.context";
-import AddCourseForm from "./pages/courses";
+import AddCourseForm from "./pages/courses/course-add";
 import Dashboard from "./pages/dashboard";
 import CategoryAdd from "./pages/category/category-add";
+import CourseList from "./pages/courses/course-list";
+import CourseEditForm from "./pages/courses/course-edit";
+import CategoryList from "./pages/category/category-list";
 
 const queryClient = new QueryClient();
 
@@ -44,6 +47,7 @@ const AppContent = () => {
     }
     return <>{children}</>;
   };
+
   return (
     <>
       {user && <Header username="admin" />}
@@ -78,10 +82,38 @@ const AppContent = () => {
           />
 
           <Route
+            path="/courses/list"
+            element={
+              <ProtectedRoute>
+                <CourseList />
+              </ProtectedRoute>
+            }
+          />
+
+          <Route
+            path="/courses/edit/:courseCode"
+            element={
+              <ProtectedRoute>
+                <CourseEditForm />
+              </ProtectedRoute>
+            }
+          />
+
+          <Route
             path="/category/add"
             element={
               <ProtectedRoute>
                 <CategoryAdd />
+              </ProtectedRoute>
+            }
+          />
+          <Route path="*" element={<div>404 Not Found</div>} />
+
+          <Route
+            path="/category/list"
+            element={
+              <ProtectedRoute>
+                <CategoryList />
               </ProtectedRoute>
             }
           />

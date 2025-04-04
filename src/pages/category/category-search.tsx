@@ -23,19 +23,30 @@ const CategorySearch: React.FC<CategorySearchProps> = ({
   const [options, setOptions] = useState<CategoryOption[]>([]);
   const [loading, setLoading] = useState(false);
   const [inputValue, setInputValue] = useState("");
+  const [page, setPage] = useState(0);
+  const [hasMore, setHasMore] = useState(true);
+  const limit = 10;
 
-  const fetchCategories = async (searchString: string) => {
+  const fetchCategories = async (searchString: string, skip: number = 0) => {
     try {
       setLoading(true);
       const response = await apiClient.getCategories({
         searchString,
-        limit: 10,
+        limit,
+        skip,
       });
       const categories = response.data.map((category) => ({
         _id: category._id,
         categoryName: category.categoryName,
       }));
-      setOptions(categories);
+
+      if (skip === 0) {
+        setOptions(categories);
+      } else {
+        setOptions((prev) => [...prev, ...categories]);
+      }
+
+      setHasMore(categories.length === limit);
     } catch (error) {
       console.error("Error fetching categories:", error);
       setOptions([]);
@@ -49,6 +60,7 @@ const CategorySearch: React.FC<CategorySearchProps> = ({
 
   useEffect(() => {
     if (open) {
+      setPage(0);
       fetchCategories("");
     }
   }, [open]);
@@ -60,11 +72,28 @@ const CategorySearch: React.FC<CategorySearchProps> = ({
     }
   }, [value]);
 
+  const handleScroll = (event: React.SyntheticEvent) => {
+    const listboxNode = event.currentTarget;
+    if (
+      !loading &&
+      hasMore &&
+      listboxNode.scrollTop + listboxNode.clientHeight >=
+        listboxNode.scrollHeight - 50
+    ) {
+      const nextPage = page + 1;
+      setPage(nextPage);
+      fetchCategories(inputValue, nextPage * limit);
+    }
+  };
+
   return (
     <Autocomplete
       open={open}
       onOpen={() => setOpen(true)}
-      onClose={() => setOpen(false)}
+      onClose={() => {
+        setOpen(false);
+        setPage(0);
+      }}
       value={value}
       inputValue={inputValue}
       onChange={(_, newValue) => {
@@ -76,7 +105,11 @@ const CategorySearch: React.FC<CategorySearchProps> = ({
       loading={loading}
       onInputChange={(_, newInputValue) => {
         setInputValue(newInputValue);
+        setPage(0);
         debouncedFetch(newInputValue);
+      }}
+      ListboxProps={{
+        onScroll: handleScroll,
       }}
       renderInput={(params) => (
         <TextField
