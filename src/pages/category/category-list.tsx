@@ -37,8 +37,8 @@ const CategoryList: React.FC = () => {
     staleTime: 30000,
   });
 
-  const handleEdit = (categoryId: string) => {
-    navigate(`/categories/edit/${categoryId}`);
+  const handleEdit = (categoryCode: string) => {
+    navigate(`/category/edit/${categoryCode}`);
   };
 
   const columns: GridColDef[] = [
@@ -63,7 +63,7 @@ const CategoryList: React.FC = () => {
       width: 100,
       renderCell: (params) => (
         <IconButton
-          onClick={() => handleEdit(params.row._id)}
+          onClick={() => handleEdit(params.row.categoryCode)}
           size="small"
           color="primary"
         >

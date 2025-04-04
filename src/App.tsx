@@ -18,6 +18,7 @@ import CategoryAdd from "./pages/category/category-add";
 import CourseList from "./pages/courses/course-list";
 import CourseEditForm from "./pages/courses/course-edit";
 import CategoryList from "./pages/category/category-list";
+import CategoryEdit from "./pages/category/category-edit";
 
 const queryClient = new QueryClient();
 
@@ -117,6 +118,16 @@ const AppContent = () => {
               </ProtectedRoute>
             }
           />
+
+          <Route
+            path="/category/edit/:categoryCode"
+            element={
+              <ProtectedRoute>
+                <CategoryEdit />
+              </ProtectedRoute>
+            }
+          />
+
           <Route path="*" element={<div>404 Not Found</div>} />
         </Routes>
       </div>

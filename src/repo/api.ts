@@ -29,6 +29,19 @@ interface CategoryQueryParams {
   limit?: number;
 }
 
+interface UpdateCategoryRequest {
+  categoryName: string;
+  categoryCode: string;
+  categoryImage: string;
+  categoryDescription: string;
+  featured: boolean;
+  active: boolean;
+}
+
+interface UpdateCategoryResponse {
+  isSuccess: boolean;
+}
+
 interface FaqDto {
   question: string;
   answer: string;
@@ -167,6 +180,20 @@ interface GetCourseDisplayResponse {
   count: number;
 }
 
+interface GetCategoryByCodeRequestDto {
+  categoryCode: string;
+}
+
+interface GetCategoryByCodeResponseDto {
+  _id: string;
+  categoryName: string;
+  categoryCode: string;
+  categoryImage: string;
+  categoryDescription: string;
+  featured: boolean;
+  active: boolean;
+}
+
 class ApiClient {
   private baseUrl: string;
 
@@ -203,6 +230,31 @@ class ApiClient {
 
     if (!response.ok) {
       throw new Error(`Failed to add category: ${response.statusText}`);
+    }
+
+    return response.json();
+  }
+
+  async updateCategory(
+    categoryId: string,
+    categoryData: UpdateCategoryRequest
+  ): Promise<UpdateCategoryResponse> {
+    const response = await fetch(`${this.baseUrl}/category/${categoryId}`, {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(categoryData),
+    });
+
+    if (!response.ok) {
+      if (response.status === 404) {
+        throw new Error("Category not found");
+      }
+      if (response.status === 409) {
+        throw new Error("Category already exists");
+      }
+      throw new Error(`Failed to update category: ${response.statusText}`);
     }
 
     return response.json();
@@ -302,7 +354,7 @@ class ApiClient {
   async getCourseDisplay(
     params: GetCourseDisplayRequest
   ): Promise<GetCourseDisplayResponse> {
-    console.log("Params:", JSON.stringify(params)); // Add this line to log the params object
+    console.log("Params:", JSON.stringify(params));
     const response = await fetch(`${this.baseUrl}/course/display`, {
       method: "POST",
       headers: {
@@ -313,6 +365,29 @@ class ApiClient {
 
     if (!response.ok) {
       throw new Error(`Failed to fetch course display: ${response.statusText}`);
+    }
+
+    return response.json();
+  }
+
+  async getCategoryByCode(
+    input: GetCategoryByCodeRequestDto
+  ): Promise<GetCategoryByCodeResponseDto> {
+    const response = await fetch(
+      `${this.baseUrl}/category/code/${input.categoryCode}`,
+      {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      }
+    );
+
+    if (!response.ok) {
+      if (response.status === 404) {
+        throw new Error("Category not found");
+      }
+      throw new Error(`Failed to fetch category: ${response.statusText}`);
     }
 
     return response.json();
