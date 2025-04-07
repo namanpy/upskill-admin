@@ -20,6 +20,9 @@ import CategorySearch from "../category/category-search";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import apiClient from "../../repo/api";
 import { useNavigate, useParams } from "react-router-dom";
+import LanguageDropdown from "../../components/language-dropdown";
+import FileUpload from "../../components/file-upload";
+import { COURSE_LEVEL } from "../../common/constants/course.constants";
 
 interface FAQ {
   _id?: string;
@@ -60,6 +63,15 @@ export interface CourseData {
   active: boolean;
   chapters: Chapter[];
   faqs: FAQ[];
+  courseLevel: {
+    code: string;
+    name: string;
+  };
+  language: {
+    _id: string;
+    languageCode: string;
+    languageName: string;
+  };
 }
 
 const CourseEditForm = () => {
@@ -74,6 +86,19 @@ const CourseEditForm = () => {
     queryFn: () => apiClient.getCourseByCode({ courseCode: courseCode! }),
     enabled: !!courseCode,
   });
+
+  const handleLanguageChange = (
+    selectedLanguage: {
+      _id: string;
+      languageCode: string;
+      languageName: string;
+    } | null
+  ) => {
+    setCourse((prev) => ({
+      ...prev,
+      language: selectedLanguage || course.language,
+    }));
+  };
 
   // Initialize state with empty course data
   const [course, setCourse] = useState<CourseData>({
@@ -91,6 +116,15 @@ const CourseEditForm = () => {
     brochure: "",
     certificate: "",
     active: true,
+    language: {
+      _id: "",
+      languageCode: "",
+      languageName: "",
+    },
+    courseLevel: {
+      code: "",
+      name: "",
+    },
     chapters: [
       {
         name: "",
@@ -120,6 +154,8 @@ const CourseEditForm = () => {
     mutationFn: (courseData: CourseData) => {
       const apiCourseData = {
         ...courseData,
+        language: courseData.language._id,
+        courseLevel: courseData.courseLevel.code,
         courseId: courseData._id!,
         courseDuration: Number(courseData.courseDuration),
         originalPrice: Number(courseData.originalPrice),
@@ -283,6 +319,14 @@ const CourseEditForm = () => {
             label="Course Category"
           />
 
+          {/* Add LanguageDropdown after CategorySearch */}
+          <LanguageDropdown
+            value={course.language}
+            onChange={handleLanguageChange}
+            label="Course Language"
+            required
+          />
+
           <Box
             sx={{
               display: "grid",
@@ -313,41 +357,65 @@ const CourseEditForm = () => {
           <Box
             sx={{
               display: "grid",
-              gridTemplateColumns: "repeat(2, 1fr)",
               gap: 3,
             }}
           >
-            <TextField
-              fullWidth
-              label="Course Image URL"
-              name="courseImage"
-              value={course.courseImage}
-              onChange={handleChange}
-              required
-              variant="outlined"
-            />
-            <TextField
-              select
-              fullWidth
-              label="Course Mode"
-              name="courseMode"
-              value={course.courseMode}
-              onChange={handleChange}
-              required
-              variant="outlined"
+            <Box
+              sx={{
+                display: "grid",
+                gridTemplateColumns: "repeat(2, 1fr)",
+                gap: 3,
+              }}
             >
-              {Object.keys(COURSE_MODE).map((mode) => (
-                <MenuItem key={mode} value={mode}>
-                  {mode}
-                </MenuItem>
-              ))}
-            </TextField>
+              <TextField
+                select
+                fullWidth
+                label="Course Mode"
+                name="courseMode"
+                value={course.courseMode}
+                onChange={handleChange}
+                required
+                variant="outlined"
+              >
+                {Object.keys(COURSE_MODE).map((mode) => (
+                  <MenuItem key={mode} value={mode}>
+                    {mode}
+                  </MenuItem>
+                ))}
+              </TextField>
+              <TextField
+                select
+                fullWidth
+                label="Course Level"
+                name="courseLevel"
+                value={course.courseLevel.code}
+                onChange={(e) => {
+                  const selectedLevel =
+                    COURSE_LEVEL[e.target.value as keyof typeof COURSE_LEVEL];
+                  setCourse((prev) => ({
+                    ...prev,
+                    courseLevel: {
+                      code: e.target.value,
+                      name: selectedLevel.name,
+                    },
+                  }));
+                }}
+                required
+                variant="outlined"
+              >
+                {Object.values(COURSE_LEVEL).map(({ code, name }) => (
+                  <MenuItem key={code} value={code}>
+                    {name}
+                  </MenuItem>
+                ))}
+              </TextField>
+            </Box>
           </Box>
 
           <Box
             sx={{
               display: "grid",
-              gridTemplateColumns: "repeat(3, 1fr)",
+              gridTemplateColumns: "repeat(4, 1fr)",
               gap: 3,
             }}
           >
@@ -359,6 +427,14 @@ const CourseEditForm = () => {
               value={course.courseDuration}
               onChange={handleChange}
               required
+              variant="outlined"
+            />
+            <TextField
+              fullWidth
+              label="YouTube URL"
+              name="youtubeUrl"
+              value={course.youtubeUrl}
+              onChange={handleChange}
               variant="outlined"
             />
             <TextField
@@ -382,42 +458,71 @@ const CourseEditForm = () => {
               variant="outlined"
             />
           </Box>
-
           <Box
             sx={{
               display: "grid",
               gridTemplateColumns: "repeat(3, 1fr)",
               gap: 3,
+              alignItems: "start",
             }}
           >
-            <TextField
-              fullWidth
-              label="YouTube URL"
-              name="youtubeUrl"
-              value={course.youtubeUrl}
-              onChange={handleChange}
-              variant="outlined"
-            />
-            <TextField
-              fullWidth
-              label="Brochure URL"
-              name="brochure"
-              value={course.brochure}
-              onChange={handleChange}
-              required
-              variant="outlined"
-            />
-            <TextField
-              fullWidth
-              label="Certificate URL"
-              name="certificate"
-              value={course.certificate}
-              onChange={handleChange}
-              required
-              variant="outlined"
-            />
-          </Box>
+            <Box>
+              <Typography variant="subtitle1" gutterBottom>
+                Course Image
+              </Typography>
+              <FileUpload
+                accept="image/*"
+                multiple={false}
+                previews={[course.courseImage]}
+                onUploadComplete={(files) => {
+                  if (files.length > 0) {
+                    setCourse((prev) => ({
+                      ...prev,
+                      courseImage: files[0].fileUrl,
+                    }));
+                  }
+                }}
+              />
+            </Box>
 
+            <Box>
+              <Typography variant="subtitle1" gutterBottom>
+                Course Brochure
+              </Typography>
+              <FileUpload
+                accept=".pdf"
+                multiple={false}
+                previews={[course.brochure]}
+                onUploadComplete={(files) => {
+                  if (files.length > 0) {
+                    setCourse((prev) => ({
+                      ...prev,
+                      brochure: files[0].fileUrl,
+                    }));
+                  }
+                }}
+              />
+            </Box>
+
+            <Box>
+              <Typography variant="subtitle1" gutterBottom>
+                Certificate Template
+              </Typography>
+              <FileUpload
+                accept="image/*,.pdf"
+                multiple={false}
+                previews={[course.certificate]}
+                onUploadComplete={(files) => {
+                  if (files.length > 0) {
+                    setCourse((prev) => ({
+                      ...prev,
+                      certificate: files[0].fileUrl,
+                    }));
+                  }
+                }}
+              />
+            </Box>
+          </Box>
           <Box sx={{ mt: 4 }}>
             <Typography variant="h5" sx={{ mb: 3, fontWeight: "medium" }}>
               Chapters & Topics

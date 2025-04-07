@@ -119,6 +119,15 @@ interface GetCourseByCodeResponseDto {
   active: boolean;
   chapters: ChapterDto[];
   faqs: FaqDto[];
+  courseLevel: {
+    code: string;
+    name: string;
+  };
+  language: {
+    _id: string;
+    languageCode: string;
+    languageName: string;
+  };
 }
 
 interface UpdateCourseRequestDto {
@@ -134,6 +143,8 @@ interface UpdateCourseRequestDto {
   discountedPrice?: number;
   youtubeUrl?: string | null;
   brochure?: string;
+  courseLevel: string;
+  language: string;
   certificate?: string;
   active?: boolean;
   chapters?: ChapterDto[];
@@ -192,6 +203,81 @@ interface GetCategoryByCodeResponseDto {
   categoryDescription: string;
   featured: boolean;
   active: boolean;
+}
+
+interface Language {
+  _id: string;
+  languageCode: string;
+  languageName: string;
+}
+
+interface LanguageResponse {
+  data: Language[];
+  count: number;
+}
+
+interface LanguageQueryParams {
+  search?: string;
+  skip?: number;
+  limit?: number;
+}
+
+interface FileResponse {
+  files: {
+    filename: string;
+    fileId: string;
+    fileUrl: string;
+  }[];
+}
+
+interface Teacher {
+  _id: string;
+  user: string;
+  qualification: string;
+  expertise: string;
+  social_links: Record<string, any>;
+  bio: string;
+  experience: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+interface BatchCourse {
+  _id: string;
+  courseName: string;
+  category: Record<string, any>;
+  courseCode: string;
+  courseImage: string;
+  courseMode: string;
+  courseDuration: number;
+  originalPrice: number;
+  discountedPrice: number;
+  youtubeUrl: Record<string, any>;
+  brochure: string;
+  courseLevel: string;
+  language: Record<string, any>;
+  certificate: string;
+  active: boolean;
+  faqs: FaqDto[];
+}
+
+interface Batch {
+  _id: string;
+  course: BatchCourse;
+  startTime: number;
+  startDate: string;
+  totalSeats: number;
+  remainingSeats: number;
+  duration: number;
+  teacher: Teacher;
+  imageUrl: string;
+  active: boolean;
+  createdAt: string;
+  updatedAt: string;
+}
+
+interface BatchesResponse {
+  batches: Batch[];
 }
 
 class ApiClient {
@@ -388,6 +474,68 @@ class ApiClient {
         throw new Error("Category not found");
       }
       throw new Error(`Failed to fetch category: ${response.statusText}`);
+    }
+
+    return response.json();
+  }
+
+  async getLanguages(
+    params: LanguageQueryParams = {}
+  ): Promise<LanguageResponse> {
+    const queryParams = new URLSearchParams();
+
+    if (params.search) queryParams.append("search", params.search);
+    if (params.skip !== undefined)
+      queryParams.append("skip", params.skip.toString());
+    if (params.limit !== undefined)
+      queryParams.append("limit", params.limit.toString());
+
+    const response = await fetch(
+      `${this.baseUrl}/languages?${queryParams.toString()}`,
+      {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      }
+    );
+
+    if (!response.ok) {
+      throw new Error(`Failed to fetch languages: ${response.statusText}`);
+    }
+
+    return response.json();
+  }
+
+  // Add this method to ApiClient class
+  async uploadFiles(files: File[]): Promise<FileResponse> {
+    const formData = new FormData();
+    files.forEach((file) => {
+      formData.append("files", file);
+    });
+
+    const response = await fetch(`${this.baseUrl}/file`, {
+      method: "POST",
+      body: formData,
+    });
+
+    if (!response.ok) {
+      throw new Error(`Failed to upload files: ${response.statusText}`);
+    }
+
+    return response.json();
+  }
+
+  async getBatches(): Promise<BatchesResponse> {
+    const response = await fetch(`${this.baseUrl}/batches`, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
+
+    if (!response.ok) {
+      throw new Error(`Failed to fetch batches: ${response.statusText}`);
     }
 
     return response.json();

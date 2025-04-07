@@ -70,6 +70,7 @@ const CategoryEdit: React.FC = () => {
       }, 2000);
     },
     onError: (error: any) => {
+      console.log(error);
       setError(error.message || "Failed to update category");
       setOpenSnackbar(true);
     },
