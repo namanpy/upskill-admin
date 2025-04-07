@@ -44,7 +44,7 @@ const menuItems: MenuItem[] = [
   },
   {
     displayName: "Category",
-    route: "/about",
+    route: "/category",
     icon: CategoryIcon,
     subItems: [
       { displayName: "All Categories", route: "/category/list" },
@@ -53,11 +53,20 @@ const menuItems: MenuItem[] = [
   },
   {
     displayName: "Course",
-    route: "/about",
+    route: "/course",
     icon: SchoolIcon,
     subItems: [
       { displayName: "All Courses", route: "/courses/list" },
       { displayName: "Add Course", route: "/courses/add" },
+    ],
+  },
+  {
+    displayName: "Batches",
+    route: "/batches",
+    icon: SchoolIcon,
+    subItems: [
+      { displayName: "All Batchse", route: "/batches/list" },
+      { displayName: "Add Batch", route: "/batches/add" },
     ],
   },
   {

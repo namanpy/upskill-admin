@@ -19,6 +19,10 @@ import CourseList from "./pages/courses/course-list";
 import CourseEditForm from "./pages/courses/course-edit";
 import CategoryList from "./pages/category/category-list";
 import CategoryEdit from "./pages/category/category-edit";
+import BatchesList from "./pages/batches/batches-list";
+import BatchAdd from "./pages/batches/batches-add";
+import { LocalizationProvider } from "@mui/x-date-pickers";
+import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFnsV3";
 
 const queryClient = new QueryClient();
 
@@ -52,85 +56,106 @@ const AppContent = () => {
   return (
     <>
       {user && <Header username="admin" />}
-      <div className="content-wrapper">
-        {user && <Sidebar />}
-        <Routes>
-          <Route path="/login" element={<LoginPage />} />
-          <Route
-            path="/"
-            element={
-              <ProtectedRoute>
-                <div>Home Page</div>
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/dashboard"
-            element={
-              <ProtectedRoute>
-                <Dashboard />
-              </ProtectedRoute>
-            }
-          />
+      <LocalizationProvider dateAdapter={AdapterDateFns}>
+        {" "}
+        <div className="content-wrapper">
+          {user && <Sidebar />}
+          <Routes>
+            <Route path="/login" element={<LoginPage />} />
+            <Route
+              path="/"
+              element={
+                <ProtectedRoute>
+                  <div>Home Page</div>
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/dashboard"
+              element={
+                <ProtectedRoute>
+                  <Dashboard />
+                </ProtectedRoute>
+              }
+            />
 
-          <Route
-            path="/courses/add"
-            element={
-              <ProtectedRoute>
-                <AddCourseForm />
-              </ProtectedRoute>
-            }
-          />
+            <Route
+              path="/courses/add"
+              element={
+                <ProtectedRoute>
+                  <AddCourseForm />
+                </ProtectedRoute>
+              }
+            />
 
-          <Route
-            path="/courses/list"
-            element={
-              <ProtectedRoute>
-                <CourseList />
-              </ProtectedRoute>
-            }
-          />
+            <Route
+              path="/courses/list"
+              element={
+                <ProtectedRoute>
+                  <CourseList />
+                </ProtectedRoute>
+              }
+            />
 
-          <Route
-            path="/courses/edit/:courseCode"
-            element={
-              <ProtectedRoute>
-                <CourseEditForm />
-              </ProtectedRoute>
-            }
-          />
+            <Route
+              path="/courses/edit/:courseCode"
+              element={
+                <ProtectedRoute>
+                  <CourseEditForm />
+                </ProtectedRoute>
+              }
+            />
 
-          <Route
-            path="/category/add"
-            element={
-              <ProtectedRoute>
-                <CategoryAdd />
-              </ProtectedRoute>
-            }
-          />
-          <Route path="*" element={<div>404 Not Found</div>} />
+            <Route
+              path="/category/add"
+              element={
+                <ProtectedRoute>
+                  <CategoryAdd />
+                </ProtectedRoute>
+              }
+            />
+            <Route path="*" element={<div>404 Not Found</div>} />
 
-          <Route
-            path="/category/list"
-            element={
-              <ProtectedRoute>
-                <CategoryList />
-              </ProtectedRoute>
-            }
-          />
+            <Route
+              path="/category/list"
+              element={
+                <ProtectedRoute>
+                  <CategoryList />
+                </ProtectedRoute>
+              }
+            />
 
-          <Route
-            path="/category/edit/:categoryCode"
-            element={
-              <ProtectedRoute>
-                <CategoryEdit />
-              </ProtectedRoute>
-            }
-          />
+            <Route
+              path="/category/edit/:categoryCode"
+              element={
+                <ProtectedRoute>
+                  <CategoryEdit />
+                </ProtectedRoute>
+              }
+            />
 
-          <Route path="*" element={<div>404 Not Found</div>} />
-        </Routes>
-      </div>
+            <Route
+              path="/batches/list"
+              element={
+                <ProtectedRoute>
+                  <BatchesList />
+                </ProtectedRoute>
+              }
+            />
+
+            <Route
+              path="/batches/add"
+              element={
+                <ProtectedRoute>
+                  <BatchAdd />
+                </ProtectedRoute>
+              }
+            />
+
+            <Route path="*" element={<div>404 Not Found</div>} />
+          </Routes>
+        </div>
+      </LocalizationProvider>
     </>
   );
 };

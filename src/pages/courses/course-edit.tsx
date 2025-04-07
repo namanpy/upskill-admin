@@ -13,6 +13,7 @@ import {
   Snackbar,
   Alert,
   CircularProgress,
+  Chip,
 } from "@mui/material";
 import { Add, Remove } from "@mui/icons-material";
 import { COURSE_MODE } from "../../common/constants/course.constants";
@@ -72,6 +73,10 @@ export interface CourseData {
     languageCode: string;
     languageName: string;
   };
+  shortDescription: string;
+  tags: string[];
+  programDetails: string;
+  targetAudience: string[];
 }
 
 const CourseEditForm = () => {
@@ -136,6 +141,10 @@ const CourseEditForm = () => {
       },
     ],
     faqs: [{ question: "", answer: "" }],
+    shortDescription: "",
+    tags: [],
+    programDetails: "",
+    targetAudience: [],
   });
 
   // Update state when course data is fetched
@@ -458,6 +467,106 @@ const CourseEditForm = () => {
               variant="outlined"
             />
           </Box>
+
+          <Box sx={{ display: "grid", gap: 3 }}>
+            <TextField
+              fullWidth
+              label="Short Description"
+              name="shortDescription"
+              value={course.shortDescription}
+              onChange={handleChange}
+              required
+              multiline
+              rows={3}
+              variant="outlined"
+            />
+
+            <Box>
+              <TextField
+                fullWidth
+                label="Tags"
+                placeholder="Press Enter to add tag"
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") {
+                    e.preventDefault();
+                    const value = (e.target as HTMLInputElement).value.trim();
+                    if (value) {
+                      setCourse((prev) => ({
+                        ...prev,
+                        tags: [...prev.tags, value],
+                      }));
+                      (e.target as HTMLInputElement).value = "";
+                    }
+                  }
+                }}
+                variant="outlined"
+              />
+              <Box sx={{ display: "flex", flexWrap: "wrap", gap: 1, mt: 1 }}>
+                {course.tags.map((tag, index) => (
+                  <Chip
+                    key={index}
+                    label={tag}
+                    onDelete={() => {
+                      setCourse((prev) => ({
+                        ...prev,
+                        tags: prev.tags.filter((_, i) => i !== index),
+                      }));
+                    }}
+                  />
+                ))}
+              </Box>
+            </Box>
+
+            <TextField
+              fullWidth
+              label="Program Details"
+              name="programDetails"
+              value={course.programDetails}
+              onChange={handleChange}
+              multiline
+              rows={4}
+              variant="outlined"
+            />
+
+            <Box>
+              <TextField
+                fullWidth
+                label="Target Audience"
+                placeholder="Press Enter to add audience"
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") {
+                    e.preventDefault();
+                    const value = (e.target as HTMLInputElement).value.trim();
+                    if (value) {
+                      setCourse((prev) => ({
+                        ...prev,
+                        targetAudience: [...prev.targetAudience, value],
+                      }));
+                      (e.target as HTMLInputElement).value = "";
+                    }
+                  }
+                }}
+                variant="outlined"
+              />
+              <Box sx={{ display: "flex", flexWrap: "wrap", gap: 1, mt: 1 }}>
+                {course.targetAudience.map((audience, index) => (
+                  <Chip
+                    key={index}
+                    label={audience}
+                    onDelete={() => {
+                      setCourse((prev) => ({
+                        ...prev,
+                        targetAudience: prev.targetAudience.filter(
+                          (_, i) => i !== index
+                        ),
+                      }));
+                    }}
+                  />
+                ))}
+              </Box>
+            </Box>
+          </Box>
+
           <Box
             sx={{
               display: "grid",

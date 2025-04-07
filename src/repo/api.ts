@@ -92,6 +92,10 @@ interface AddCourseRequest {
   active: boolean;
   chapters: ChapterDto[];
   faqs: FaqDto[];
+  shortDescription: string;
+  tags: string[];
+  programDetails: string;
+  targetAudience: string[];
 }
 
 interface AddCourseResponse {
@@ -128,6 +132,10 @@ interface GetCourseByCodeResponseDto {
     languageCode: string;
     languageName: string;
   };
+  shortDescription: string;
+  tags: string[];
+  programDetails: string;
+  targetAudience: string[];
 }
 
 interface UpdateCourseRequestDto {
@@ -149,6 +157,10 @@ interface UpdateCourseRequestDto {
   active?: boolean;
   chapters?: ChapterDto[];
   faqs?: FaqDto[];
+  shortDescription: string;
+  tags: string[];
+  programDetails: string;
+  targetAudience: string[];
 }
 
 interface UpdateCourseResponseDto {
@@ -168,7 +180,7 @@ interface GetCourseDisplayRequest {
   search?: string;
 }
 
-interface CourseDisplay {
+export interface CourseDisplay {
   _id: string;
   courseName: string;
   category: Category;
@@ -230,9 +242,10 @@ interface FileResponse {
   }[];
 }
 
-interface Teacher {
+export interface Teacher {
   _id: string;
   user: string;
+  name: string;
   qualification: string;
   expertise: string;
   social_links: Record<string, any>;
@@ -278,6 +291,16 @@ interface Batch {
 
 interface BatchesResponse {
   batches: Batch[];
+}
+
+interface TeacherQueryParams {
+  search?: string;
+  skip?: number;
+  limit?: number;
+}
+
+interface TeachersResponse {
+  teachers: Teacher[];
 }
 
 class ApiClient {
@@ -536,6 +559,68 @@ class ApiClient {
 
     if (!response.ok) {
       throw new Error(`Failed to fetch batches: ${response.statusText}`);
+    }
+
+    return response.json();
+  }
+
+  async getTeachers(
+    params: TeacherQueryParams = {}
+  ): Promise<TeachersResponse> {
+    const queryParams = new URLSearchParams();
+
+    if (params.search) queryParams.append("search", params.search);
+    if (params.skip !== undefined)
+      queryParams.append("skip", params.skip.toString());
+    if (params.limit !== undefined)
+      queryParams.append("limit", params.limit.toString());
+
+    const response = await fetch(
+      `${this.baseUrl}/teachers?${queryParams.toString()}`,
+      {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      }
+    );
+
+    if (!response.ok) {
+      throw new Error(`Failed to fetch teachers: ${response.statusText}`);
+    }
+
+    return response.json();
+  }
+
+  async createBatch(
+    batchData: {
+      course: string;
+      startDate: string;
+      totalSeats: number;
+      remainingSeats: number;
+      duration: string;
+      teacher: string;
+      active: boolean;
+    },
+    imageFile?: File
+  ): Promise<{ isSuccess: boolean }> {
+    const formData = new FormData();
+
+    // Append batch data as JSON
+    formData.append("batchData", JSON.stringify(batchData));
+
+    // Append image file if provided
+    if (imageFile) {
+      formData.append("file", imageFile);
+    }
+
+    const response = await fetch(`${this.baseUrl}/batches`, {
+      method: "POST",
+      body: formData,
+    });
+
+    if (!response.ok) {
+      throw new Error(`Failed to create batch: ${response.statusText}`);
     }
 
     return response.json();
