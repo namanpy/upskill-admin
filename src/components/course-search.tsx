@@ -27,7 +27,7 @@ const CourseSearch: React.FC<CourseSearchProps> = ({
         search: searchTerm,
         limit: 10,
       }),
-    enabled: false,
+    enabled: true, // Changed to true to load initial data
   });
 
   const debouncedSearch = debounce(() => {
