@@ -70,6 +70,16 @@ const menuItems: MenuItem[] = [
     ],
   },
   {
+    displayName: "banners",
+    route: "/banners",
+    icon: SchoolIcon,
+    subItems: [
+      { displayName: "All banners", route: "/banners/list" },
+      { displayName: "Add banners", route: "/banners/add" },
+    ],
+  },
+
+  {
     displayName: "Settings",
     route: "/settings",
     icon: SettingsIcon,
@@ -78,6 +88,7 @@ const menuItems: MenuItem[] = [
       { displayName: "Security", route: "/settings/security" },
     ],
   },
+
 ];
 
 const Sidebar = () => {

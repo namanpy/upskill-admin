@@ -23,6 +23,8 @@ import BatchesList from "./pages/batches/batches-list";
 import BatchAdd from "./pages/batches/batches-add";
 import { LocalizationProvider } from "@mui/x-date-pickers";
 import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFnsV3";
+import BannerList from './pages/banners/banner-list';
+import BannerAdd from './pages/banners/banner-add';
 
 const queryClient = new QueryClient();
 
@@ -152,6 +154,22 @@ const AppContent = () => {
               }
             />
 
+            <Route
+              path="/banners/add"
+              element={
+                <ProtectedRoute>
+                  <BannerAdd />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/banners/list"
+              element={
+                <ProtectedRoute>
+                  <BannerList />
+                </ProtectedRoute>
+              }
+            />
             <Route path="*" element={<div>404 Not Found</div>} />
           </Routes>
         </div>
