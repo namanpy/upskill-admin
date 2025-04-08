@@ -8,6 +8,7 @@ interface LoginResponse {
 }
 
 interface Category {
+  name: string;
   _id: string;
   categoryName: string;
   categoryCode: string;
@@ -606,12 +607,18 @@ class ApiClient {
   ): Promise<{ isSuccess: boolean }> {
     const formData = new FormData();
 
-    // Append batch data as JSON
-    formData.append("batchData", JSON.stringify(batchData));
+    // Append each batch data field individually to FormData
+    formData.append("course", batchData.course);
+    formData.append("startDate", batchData.startDate);
+    formData.append("totalSeats", batchData.totalSeats.toString());
+    formData.append("remainingSeats", batchData.remainingSeats.toString());
+    formData.append("duration", batchData.duration);
+    formData.append("teacher", batchData.teacher);
+    formData.append("active", batchData.active.toString());
 
-    // Append image file if provided
+    // Append image if provided
     if (imageFile) {
-      formData.append("file", imageFile);
+      formData.append("image", imageFile);
     }
 
     const response = await fetch(`${this.baseUrl}/batches`, {
@@ -620,7 +627,8 @@ class ApiClient {
     });
 
     if (!response.ok) {
-      throw new Error(`Failed to create batch: ${response.statusText}`);
+      const errorData = await response.text();
+      throw new Error(`Failed to create batch: ${errorData}`);
     }
 
     return response.json();

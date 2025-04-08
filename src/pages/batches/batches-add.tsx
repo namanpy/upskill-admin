@@ -19,9 +19,10 @@ import TeacherSearch from "../../components/teacher-search";
 import type { Teacher } from "../../repo/api";
 import CourseSearch from "../../components/course-search";
 import type { CourseDisplay } from "../../repo/api";
+import { CourseData } from "../courses/course-add";
 
 interface BatchForm {
-  course: string;
+  course: CourseData;
   startDate: string;
   startTime: number;
   totalSeats: number;
@@ -37,7 +38,36 @@ const BatchAdd = () => {
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [selectedTeacher, setSelectedTeacher] = useState<Teacher | null>(null);
   const [batch, setBatch] = useState<BatchForm>({
-    course: "",
+    course: {
+      courseName: "",
+      category: "",
+      categoryName: "",
+      courseCode: "",
+      courseImage: "",
+      courseMode: "",
+      courseDuration: 0,
+      originalPrice: 0,
+      discountedPrice: 0,
+      youtubeUrl: "",
+      brochure: "",
+      certificate: "",
+      shortDescription: "",
+      tags: [],
+      programDetails: "",
+      targetAudience: [],
+      active: false,
+      courseLevel: {
+        code: "",
+        name: "",
+      },
+      language: {
+        _id: "",
+        languageCode: "",
+        languageName: "",
+      },
+      chapters: [],
+      faqs: [],
+    },
     startDate: "",
     startTime: 9, // Default to 9 AM
     totalSeats: 30,
@@ -52,6 +82,7 @@ const BatchAdd = () => {
       return apiClient.createBatch(
         {
           ...batchData,
+          course: batchData.course._id!,
           teacher: selectedTeacher?._id || "",
         },
         imageFile || undefined
@@ -84,10 +115,26 @@ const BatchAdd = () => {
     if (selectedCourse) {
       setBatch((prev) => ({
         ...prev,
-        course: selectedCourse._id,
+        course: {
+          ...batch.course,
+          ...selectedCourse,
+          category: selectedCourse.category._id,
+          categoryName: selectedCourse.category?.toString() || "",
+          shortDescription: "",
+          tags: [],
+          programDetails: "",
+          targetAudience: [],
+          chapters: [],
+          faqs: [],
+        },
       }));
     }
   }, [selectedCourse]);
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0] || null;
+    setImageFile(file);
+  };
 
   return (
     <Container maxWidth="lg" sx={{ mt: 4, mb: 4 }}>
@@ -184,18 +231,7 @@ const BatchAdd = () => {
               <Typography variant="subtitle1" gutterBottom>
                 Batch Image
               </Typography>
-              <FileUpload
-                accept="image/*"
-                multiple={false}
-                onUploadComplete={(files) => {
-                  if (files.length > 0) {
-                    setBatch((prev) => ({
-                      ...prev,
-                      imageUrl: files[0].fileUrl,
-                    }));
-                  }
-                }}
-              />
+              <input type="file" accept="image/*" onChange={handleFileChange} />
             </Box>
 
             <FormControlLabel

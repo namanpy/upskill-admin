@@ -57,9 +57,9 @@ export interface CourseData {
   courseCode: string;
   courseImage: string;
   courseMode: string;
-  courseDuration: string;
-  originalPrice: string;
-  discountedPrice: string;
+  courseDuration: number;
+  originalPrice: number;
+  discountedPrice: number;
   youtubeUrl: string;
   brochure: string;
   certificate: string;
@@ -94,9 +94,9 @@ const AddCourseForm = () => {
     programDetails: "",
     targetAudience: [],
     courseMode: "",
-    courseDuration: "",
-    originalPrice: "",
-    discountedPrice: "",
+    courseDuration: 0,
+    originalPrice: 0,
+    discountedPrice: 0,
     youtubeUrl: "",
     brochure: "",
     certificate: "",
