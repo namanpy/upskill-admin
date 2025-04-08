@@ -147,7 +147,7 @@ const BatchesList = () => {
                 <Box sx={{ display: "flex", alignItems: "center", mb: 1 }}>
                   <AccessTime sx={{ mr: 1, color: "primary.main" }} />
                   <Typography variant="body2">
-                    Time: {formatTime(batch.startTime)}
+                    Time: {batch.startTime}
                   </Typography>
                 </Box>
 
@@ -161,7 +161,7 @@ const BatchesList = () => {
                 <Box sx={{ display: "flex", alignItems: "center", mb: 1 }}>
                   <Person sx={{ mr: 1, color: "primary.main" }} />
                   <Typography variant="body2">
-                    Teacher: {batch.teacher.qualification}
+                    Teacher: {batch.teacher.name}
                   </Typography>
                 </Box>
 
@@ -187,7 +187,7 @@ const BatchesList = () => {
                     <IconButton
                       size="small"
                       onClick={() => {
-                        console.log("Edit batch:", batch._id);
+                        window.location.href = `/batches/edit/${batch._id}`;
                       }}
                     >
                       <Edit />

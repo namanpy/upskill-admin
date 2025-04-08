@@ -23,8 +23,9 @@ import BatchesList from "./pages/batches/batches-list";
 import BatchAdd from "./pages/batches/batches-add";
 import { LocalizationProvider } from "@mui/x-date-pickers";
 import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFnsV3";
-import BannerList from './pages/banners/banner-list';
-import BannerAdd from './pages/banners/banner-add';
+import BannerList from "./pages/banners/banner-list";
+import BannerAdd from "./pages/banners/banner-add";
+import BatchEdit from "./pages/batches/batches-edit";
 
 const queryClient = new QueryClient();
 
@@ -150,6 +151,15 @@ const AppContent = () => {
               element={
                 <ProtectedRoute>
                   <BatchAdd />
+                </ProtectedRoute>
+              }
+            />
+
+            <Route
+              path="/batches/edit/:id"
+              element={
+                <ProtectedRoute>
+                  <BatchEdit />
                 </ProtectedRoute>
               }
             />

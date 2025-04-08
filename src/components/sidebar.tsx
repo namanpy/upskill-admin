@@ -16,6 +16,8 @@ import SchoolIcon from "@mui/icons-material/School";
 import SettingsIcon from "@mui/icons-material/Settings";
 import ExpandLess from "@mui/icons-material/ExpandLess";
 import ExpandMore from "@mui/icons-material/ExpandMore";
+import GroupsIcon from "@mui/icons-material/Groups";
+import ViewCarouselIcon from "@mui/icons-material/ViewCarousel";
 
 // Define the type for sub menu items
 type SubMenuItem = {
@@ -63,22 +65,21 @@ const menuItems: MenuItem[] = [
   {
     displayName: "Batches",
     route: "/batches",
-    icon: SchoolIcon,
+    icon: GroupsIcon,
     subItems: [
-      { displayName: "All Batchse", route: "/batches/list" },
+      { displayName: "All Batches", route: "/batches/list" },
       { displayName: "Add Batch", route: "/batches/add" },
     ],
   },
   {
     displayName: "banners",
     route: "/banners",
-    icon: SchoolIcon,
+    icon: ViewCarouselIcon,
     subItems: [
       { displayName: "All banners", route: "/banners/list" },
       { displayName: "Add banners", route: "/banners/add" },
     ],
   },
-
   {
     displayName: "Settings",
     route: "/settings",
@@ -88,7 +89,6 @@ const menuItems: MenuItem[] = [
       { displayName: "Security", route: "/settings/security" },
     ],
   },
-
 ];
 
 const Sidebar = () => {

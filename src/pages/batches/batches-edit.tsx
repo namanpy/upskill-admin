@@ -9,22 +9,23 @@ import {
   Switch,
   FormControlLabel,
   Alert,
-  MenuItem,
+  CircularProgress,
 } from "@mui/material";
 import { DatePicker } from "@mui/x-date-pickers";
-import { useMutation } from "@tanstack/react-query";
-import { useNavigate } from "react-router-dom";
+import { useMutation, useQuery } from "@tanstack/react-query";
+import { useNavigate, useParams } from "react-router-dom";
 import apiClient from "../../repo/api";
-import FileUpload from "../../components/file-upload";
 import TeacherSearch from "../../components/teacher-search";
-import type { Teacher } from "../../repo/api";
+import type { Teacher, CourseDisplay } from "../../repo/api";
 import CourseSearch from "../../components/course-search";
-import type { CourseDisplay } from "../../repo/api";
 import { CourseData } from "../courses/course-add";
 import { Autocomplete } from "@mui/material";
+// Import the FileUpload component
+import FileUpload from "../../components/file-upload";
 
 interface BatchForm {
   course: Pick<CourseData, "_id" | "courseName" | "courseCode" | "courseMode">;
+  batchCode: string;
   startDate: string;
   startTime: string;
   totalSeats: number;
@@ -33,39 +34,112 @@ interface BatchForm {
   teacher: string;
   active: boolean;
   imageUrl?: string;
-  batchCode: string; // Add batchCode field
 }
 
-const BatchAdd = () => {
+const BatchEdit = () => {
+  const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [selectedTeacher, setSelectedTeacher] = useState<Teacher | null>(null);
+  const [selectedCourse, setSelectedCourse] = useState<Pick<
+    CourseDisplay,
+    "_id" | "courseName" | "courseCode" | "courseMode"
+  > | null>(null);
+
   const [batch, setBatch] = useState<BatchForm>({
     course: {
+      _id: "",
       courseName: "",
       courseCode: "",
       courseMode: "",
     },
+    batchCode: "",
     startDate: "",
-    startTime: "09:00", // Default to 9 AM
-    totalSeats: 30,
-    remainingSeats: 30,
+    startTime: "",
+    totalSeats: 0,
+    remainingSeats: 0,
     duration: "",
     teacher: "",
-    active: true,
-    batchCode: "", // Initialize batchCode
+    active: false,
   });
 
-  const createBatchMutation = useMutation({
+  // Fetch batch data
+  const {
+    data: batchData,
+    isLoading,
+    isError,
+    error,
+  } = useQuery({
+    queryKey: ["batch", id],
+    queryFn: () => apiClient.getBatchById(id!),
+    enabled: !!id,
+  });
+
+  // Update form when batch data is loaded
+  useEffect(() => {
+    if (batchData) {
+      // Convert course data to the expected format
+      const courseData: Pick<
+        CourseData,
+        "_id" | "courseName" | "courseCode" | "courseMode"
+      > = {
+        _id: batchData.batch.course._id,
+        courseName: batchData.batch.course.courseName,
+        courseCode: batchData.batch.course.courseCode,
+        courseMode: batchData.batch.course.courseMode,
+      };
+
+      // Format time from number to string (HH:MM)
+      const startTimeStr =
+        typeof batchData.batch.startTime === "number"
+          ? `${Math.floor(batchData.batch.startTime / 100)
+              .toString()
+              .padStart(2, "0")}:${(batchData.batch.startTime % 100)
+              .toString()
+              .padStart(2, "0")}`
+          : batchData.batch.startTime;
+
+      setBatch({
+        course: courseData,
+        batchCode: batchData.batch.batchCode,
+        startDate: batchData.batch.startDate,
+        startTime: startTimeStr,
+        totalSeats: batchData.batch.totalSeats,
+        remainingSeats: batchData.batch.remainingSeats,
+        duration: batchData.batch.duration,
+        teacher: batchData.batch.teacher._id,
+        active: batchData.batch.active,
+        imageUrl: batchData.batch.imageUrl,
+      });
+
+      // Set selected teacher
+      setSelectedTeacher(batchData.batch.teacher);
+
+      // Set selected course as a CourseDisplay object
+      setSelectedCourse({
+        _id: batchData.batch.course._id!,
+        courseName: batchData.batch.course.courseName,
+        courseCode: batchData.batch.course.courseCode,
+        courseMode: batchData.batch.course.courseMode,
+      });
+    }
+  }, [batchData]);
+
+  // Update the updateBatchMutation to use imageUrl instead of imageFile
+  const updateBatchMutation = useMutation({
     mutationFn: async (batchData: BatchForm) => {
-      return apiClient.createBatch(
-        {
-          ...batchData,
-          course: batchData.course._id!,
-          teacher: selectedTeacher?._id || "",
-        },
-        imageFile || undefined
-      );
+      return apiClient.updateBatch(id!, {
+        course: batchData.course._id!,
+        batchCode: batchData.batchCode,
+        startDate: batchData.startDate,
+        startTime: batchData.startTime,
+        totalSeats: batchData.totalSeats,
+        remainingSeats: batchData.remainingSeats,
+        duration: batchData.duration,
+        teacher: selectedTeacher?._id || "",
+        active: batchData.active,
+        imageUrl: batchData.imageUrl, // Use imageUrl instead of sending a file
+      });
     },
     onSuccess: () => {
       navigate("/batches/list");
@@ -74,7 +148,7 @@ const BatchAdd = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    createBatchMutation.mutate(batch);
+    updateBatchMutation.mutate(batch);
   };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -85,11 +159,6 @@ const BatchAdd = () => {
     }));
   };
 
-  const [selectedCourse, setSelectedCourse] = useState<Pick<
-    CourseDisplay,
-    "_id" | "courseName" | "courseCode" | "courseMode"
-  > | null>(null);
-
   // Update batch state when course is selected
   useEffect(() => {
     if (selectedCourse) {
@@ -97,7 +166,8 @@ const BatchAdd = () => {
         ...prev,
         course: {
           ...batch.course,
-          ...selectedCourse,
+          _id: selectedCourse._id,
+          courseName: selectedCourse.courseName,
         },
       }));
     }
@@ -123,16 +193,41 @@ const BatchAdd = () => {
 
   const timeOptions = generateTimeOptions();
 
+  if (isLoading) {
+    return (
+      <Container maxWidth="lg" sx={{ mt: 4, mb: 4, textAlign: "center" }}>
+        <CircularProgress />
+        <Typography variant="h6" sx={{ mt: 2 }}>
+          Loading batch data...
+        </Typography>
+      </Container>
+    );
+  }
+
+  if (isError) {
+    return (
+      <Container maxWidth="lg" sx={{ mt: 4, mb: 4 }}>
+        <Alert severity="error">
+          Error loading batch:{" "}
+          {error instanceof Error ? error.message : "Unknown error"}
+        </Alert>
+      </Container>
+    );
+  }
+
   return (
     <Container maxWidth="lg" sx={{ mt: 4, mb: 4 }}>
       <Paper sx={{ p: 4, borderRadius: 2 }}>
         <Typography variant="h4" gutterBottom>
-          Create New Batch
+          Edit Batch
         </Typography>
 
-        {createBatchMutation.isError && (
+        {updateBatchMutation.isError && (
           <Alert severity="error" sx={{ mb: 2 }}>
-            Error creating batch: {createBatchMutation.error.message}
+            Error updating batch:{" "}
+            {updateBatchMutation.error instanceof Error
+              ? updateBatchMutation.error.message
+              : "Unknown error"}
           </Alert>
         )}
 
@@ -144,7 +239,6 @@ const BatchAdd = () => {
               label="Select Course"
               required
             />
-
             <TextField
               label="Batch Code"
               name="batchCode"
@@ -154,7 +248,6 @@ const BatchAdd = () => {
               fullWidth
               helperText="Enter a unique code for this batch"
             />
-
             <Box
               sx={{
                 display: "grid",
@@ -194,7 +287,6 @@ const BatchAdd = () => {
                 )}
               />
             </Box>
-
             <Box
               sx={{
                 display: "grid",
@@ -212,10 +304,31 @@ const BatchAdd = () => {
                   setBatch((prev) => ({
                     ...prev,
                     totalSeats: value,
+                    // Only update remainingSeats if it was equal to totalSeats before
+                    remainingSeats:
+                      prev.totalSeats === prev.remainingSeats
+                        ? value
+                        : prev.remainingSeats,
+                  }));
+                }}
+                required
+              />
+
+              <TextField
+                type="number"
+                label="Remaining Seats"
+                name="remainingSeats"
+                value={batch.remainingSeats}
+                onChange={(e) => {
+                  const value = parseInt(e.target.value);
+                  setBatch((prev) => ({
+                    ...prev,
                     remainingSeats: value,
                   }));
                 }}
                 required
+                helperText="Number of seats still available"
+                inputProps={{ max: batch.totalSeats }}
               />
 
               <TextField
@@ -224,24 +337,48 @@ const BatchAdd = () => {
                 value={batch.duration}
                 onChange={handleChange}
                 required
-                helperText="Duration in days"
+                helperText="e.g., 2 months, 12 weeks"
               />
             </Box>
-
             <TeacherSearch
               value={selectedTeacher}
               onChange={setSelectedTeacher}
               label="Select Teacher"
               required
             />
-
+            // Replace the current image upload section with FileUpload
+            component
             <Box>
               <Typography variant="subtitle1" gutterBottom>
                 Batch Image
               </Typography>
-              <input type="file" accept="image/*" onChange={handleFileChange} />
+              {batch.imageUrl && (
+                <Box sx={{ mb: 2 }}>
+                  <img
+                    src={batch.imageUrl}
+                    alt="Current batch image"
+                    style={{ maxWidth: "200px", maxHeight: "200px" }}
+                  />
+                  <Typography variant="caption" display="block">
+                    Current image
+                  </Typography>
+                </Box>
+              )}
+              <FileUpload
+                minified={true}
+                accept="image/*"
+                onUploadComplete={(files) => {
+                  if (files.length > 0) {
+                    setBatch((prev) => ({
+                      ...prev,
+                      imageUrl: files[0].fileUrl,
+                    }));
+                    // No need to set imageFile since we're using the URL directly
+                    setImageFile(null);
+                  }
+                }}
+              />
             </Box>
-
             <FormControlLabel
               control={
                 <Switch
@@ -257,15 +394,14 @@ const BatchAdd = () => {
               }
               label="Active"
             />
-
             <Box sx={{ mt: 2 }}>
               <Button
                 type="submit"
                 variant="contained"
                 size="large"
-                disabled={createBatchMutation.isPending}
+                disabled={updateBatchMutation.isPending}
               >
-                {createBatchMutation.isPending ? "Creating..." : "Create Batch"}
+                {updateBatchMutation.isPending ? "Updating..." : "Update Batch"}
               </Button>
             </Box>
           </Box>
@@ -275,4 +411,4 @@ const BatchAdd = () => {
   );
 };
 
-export default BatchAdd;
+export default BatchEdit;
