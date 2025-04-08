@@ -597,6 +597,7 @@ class ApiClient {
     batchData: {
       course: string;
       startDate: string;
+      startTime: number;
       totalSeats: number;
       remainingSeats: number;
       duration: string;
@@ -610,6 +611,7 @@ class ApiClient {
     // Append each batch data field individually to FormData
     formData.append("course", batchData.course);
     formData.append("startDate", batchData.startDate);
+    formData.append("startTime", batchData.startTime.toString());
     formData.append("totalSeats", batchData.totalSeats.toString());
     formData.append("remainingSeats", batchData.remainingSeats.toString());
     formData.append("duration", batchData.duration);
