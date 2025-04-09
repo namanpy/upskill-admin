@@ -8,7 +8,7 @@ import {
   Route,
   Navigate,
 } from "react-router-dom";
-import { useState, useEffect } from "react";
+// import { useState, useEffect } from "react";
 import LoginPage from "./pages/login";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { AuthProvider, useAuth } from "./context/auth.context";
@@ -23,8 +23,10 @@ import BatchesList from "./pages/batches/batches-list";
 import BatchAdd from "./pages/batches/batches-add";
 import { LocalizationProvider } from "@mui/x-date-pickers";
 import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFnsV3";
-import BannerList from './pages/banners/banner-list';
-import BannerAdd from './pages/banners/banner-add';
+// import BannerList from './pages/banners/banner-list';
+// import BannerAdd from './pages/banners/banner-add';
+// import BannerEdit from './pages/banners/banner-edit';
+import { BannerList, BannerAdd, BannerEdit ,PremiumLearningAdd, PremiumLearningList, PremiumLearningEdit, StatsAdd, StatsEdit, StatsList, Banner3Add, Banner3Edit,Banner3List, Banner4Add, Banner4List, Banner4Edit  } from './pages/index'
 
 const queryClient = new QueryClient();
 
@@ -167,6 +169,110 @@ const AppContent = () => {
               element={
                 <ProtectedRoute>
                   <BannerList />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/banners/edit/:id"
+              element={
+                <ProtectedRoute>
+                  <BannerEdit />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/banner2/add"
+              element={
+                <ProtectedRoute>
+                  <PremiumLearningAdd />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/banner2/list"
+              element={
+                <ProtectedRoute>
+                  <PremiumLearningList />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/banner2/edit/:id"
+              element={
+                <ProtectedRoute>
+                  <PremiumLearningEdit />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/stats/edit/:id"
+              element={
+                <ProtectedRoute>
+                  <StatsEdit />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/stats/list"
+              element={
+                <ProtectedRoute>
+                  <StatsList />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/stats/add"
+              element={
+                <ProtectedRoute>
+                  <StatsAdd  />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/banner3/add"
+              element={
+                <ProtectedRoute>
+                  <Banner3Add  />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/banner3/list"
+              element={
+                <ProtectedRoute>
+                  <Banner3List />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/banner3/edit/:id"
+              element={
+                <ProtectedRoute>
+                  <Banner3Edit />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/banner4/edit/:id"
+              element={
+                <ProtectedRoute>
+                  <Banner4Edit />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/banner4/list"
+              element={
+                <ProtectedRoute>
+                  <Banner4List />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/banner4/add"
+              element={
+                <ProtectedRoute>
+                  <Banner4Add />
                 </ProtectedRoute>
               }
             />

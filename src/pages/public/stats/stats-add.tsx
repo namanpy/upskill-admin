@@ -1,47 +1,35 @@
-// src/pages/banners/banner-add.tsx
+// src/pages/stats/stats-add.tsx
 import React, { useState } from 'react';
-import {
-  Container,
-  Paper,
-  Typography,
-  Box,
-  TextField,
-  Button,
-  Switch,
-  FormControlLabel,
-  Alert,
-} from '@mui/material';
+import { Container, Paper, Typography, Box, TextField, Button, Switch, FormControlLabel, Alert } from '@mui/material';
 import { useMutation } from '@tanstack/react-query';
 import { useNavigate } from 'react-router-dom';
-import { createBanner } from '../../repo/banners.api';
+import { createStat } from '../../../repo/banners.api';
 
-const BannerAdd = () => {
+const StatsAdd = () => {
   const navigate = useNavigate();
   const [formData, setFormData] = useState({
-    title: '',
-    subtitle: '',
-    description: '',
+    count: '',
+    label: '',
     active: true,
   });
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [error, setError] = useState<string | null>(null);
 
-  const createBannerMutation = useMutation({
+  const createMutation = useMutation({
     mutationFn: async () => {
       const data = new FormData();
-      data.append('title', formData.title);
-      data.append('subtitle', formData.subtitle);
-      data.append('description', formData.description);
+      data.append('count', formData.count);
+      data.append('label', formData.label);
       data.append('active', formData.active.toString());
       if (imageFile) data.append('image', imageFile);
 
-      return createBanner(data);
+      return createStat(data);
     },
     onSuccess: () => {
-      navigate('/banners/list');
+      navigate('/stats/list');
     },
     onError: (err: any) => {
-      setError(err.message || 'Failed to create banner');
+      setError(err.message || 'Failed to create stat');
     },
   });
 
@@ -60,50 +48,35 @@ const BannerAdd = () => {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    createBannerMutation.mutate();
+    createMutation.mutate();
   };
 
   return (
     <Container maxWidth="lg" sx={{ mt: 4, mb: 4 }}>
       <Paper sx={{ p: 4, borderRadius: 2 }}>
         <Typography variant="h4" gutterBottom>
-          Add New Banner
+          Add Stat
         </Typography>
-
-        {createBannerMutation.isError && error && (
-          <Alert severity="error" sx={{ mb: 2 }}>
-            {error}
-          </Alert>
-        )}
-
+        {error && <Alert severity="error" sx={{ mb: 2 }}>{error}</Alert>}
         <form onSubmit={handleSubmit}>
           <Box sx={{ display: 'grid', gap: 3 }}>
             <TextField
-              label="Title"
-              name="title"
-              value={formData.title}
+              label="Count"
+              name="count"
+              value={formData.count}
               onChange={handleChange}
               required
             />
             <TextField
-              label="Subtitle"
-              name="subtitle"
-              value={formData.subtitle}
+              label="Label"
+              name="label"
+              value={formData.label}
               onChange={handleChange}
-              required
-            />
-            <TextField
-              label="Description"
-              name="description"
-              value={formData.description}
-              onChange={handleChange}
-              multiline
-              rows={4}
               required
             />
             <Box>
               <Typography variant="subtitle1" gutterBottom>
-                Banner Image
+                Image
               </Typography>
               <input type="file" accept="image/*" onChange={handleFileChange} />
             </Box>
@@ -122,9 +95,9 @@ const BannerAdd = () => {
                 type="submit"
                 variant="contained"
                 size="large"
-                disabled={createBannerMutation.isPending}
+                disabled={createMutation.isPending}
               >
-                {createBannerMutation.isPending ? 'Creating...' : 'Create Banner'}
+                {createMutation.isPending ? 'Creating...' : 'Create'}
               </Button>
             </Box>
           </Box>
@@ -134,4 +107,4 @@ const BannerAdd = () => {
   );
 };
 
-export default BannerAdd;
+export default StatsAdd;

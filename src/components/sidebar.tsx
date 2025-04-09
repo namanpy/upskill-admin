@@ -70,6 +70,15 @@ const menuItems: MenuItem[] = [
     ],
   },
   {
+    displayName: "stats",
+    route: "/stats",
+    icon: SchoolIcon,
+    subItems: [
+      { displayName: "All Stats", route: "/stats/list" },
+      { displayName: "Add stats", route: "/stats/add" },
+    ],
+  },
+  {
     displayName: "banners",
     route: "/banners",
     icon: SchoolIcon,
@@ -80,6 +89,51 @@ const menuItems: MenuItem[] = [
   },
 
   {
+    displayName: "banner 2",
+    route: "/banner2",
+    icon: SchoolIcon,
+    subItems: [
+      { displayName: "All banner 2", route: "/banner2/list" },
+      { displayName: "Add banner 2", route: "/banner2/add" },
+    ],
+  },
+  {
+    displayName: "banner 3",
+    route: "/banner3",
+    icon: SchoolIcon,
+    subItems: [
+      { displayName: "All banner 3 ", route: "/banner3/list" },
+      { displayName: "Add banner 3", route: "/banner3/add" },
+    ],
+  },
+  {
+    displayName: "banner 4",
+    route: "/banner4",
+    icon: SchoolIcon,
+    subItems: [
+      { displayName: "All banner 4", route: "/banner4/list" },
+      { displayName: "Add banner 4", route: "/banner4/add" },
+    ],
+  },
+  {
+    displayName: "stories",
+    route: "/stories",
+    icon: SchoolIcon,
+    subItems: [
+      { displayName: "stories", route: "/stories/list" },
+      { displayName: "add stories", route: "/stories/add" },
+    ],
+  },
+  {
+    displayName: "blogs",
+    route: "/blogs",
+    icon: SchoolIcon,
+    subItems: [
+      { displayName: "list blogs", route: "/blogs/list" },
+      { displayName: "add blogs", route: "/blogs/add" },
+    ],
+  },
+  {
     displayName: "Settings",
     route: "/settings",
     icon: SettingsIcon,
@@ -88,6 +142,7 @@ const menuItems: MenuItem[] = [
       { displayName: "Security", route: "/settings/security" },
     ],
   },
+  
 
 ];
 
