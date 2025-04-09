@@ -5,9 +5,13 @@ import apiClient from "../repo/api";
 import { debounce } from "lodash";
 import type { CourseDisplay } from "../repo/api";
 
+type RequiredCourseData = Pick<
+  CourseDisplay,
+  "_id" | "courseName" | "courseCode" | "courseMode"
+>;
 interface CourseSearchProps {
-  value: CourseDisplay | null;
-  onChange: (course: CourseDisplay | null) => void;
+  value: RequiredCourseData | null;
+  onChange: (course: RequiredCourseData | null) => void;
   label?: string;
   required?: boolean;
 }

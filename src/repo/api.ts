@@ -1,3 +1,5 @@
+import { CourseData } from "../pages/courses/course-add";
+
 interface LoginRequest {
   identifier: string;
   password: string;
@@ -256,33 +258,15 @@ export interface Teacher {
   updatedAt: string;
 }
 
-interface BatchCourse {
-  _id: string;
-  courseName: string;
-  category: Record<string, any>;
-  courseCode: string;
-  courseImage: string;
-  courseMode: string;
-  courseDuration: number;
-  originalPrice: number;
-  discountedPrice: number;
-  youtubeUrl: Record<string, any>;
-  brochure: string;
-  courseLevel: string;
-  language: Record<string, any>;
-  certificate: string;
-  active: boolean;
-  faqs: FaqDto[];
-}
-
 interface Batch {
   _id: string;
-  course: BatchCourse;
+  course: CourseData;
+  batchCode: string;
   startTime: number;
   startDate: string;
   totalSeats: number;
   remainingSeats: number;
-  duration: number;
+  duration: string;
   teacher: Teacher;
   imageUrl: string;
   active: boolean;
@@ -596,7 +580,9 @@ class ApiClient {
   async createBatch(
     batchData: {
       course: string;
+      batchCode: string;
       startDate: string;
+      startTime: string;
       totalSeats: number;
       remainingSeats: number;
       duration: string;
@@ -609,7 +595,9 @@ class ApiClient {
 
     // Append each batch data field individually to FormData
     formData.append("course", batchData.course);
+    formData.append("batchCode", batchData.batchCode);
     formData.append("startDate", batchData.startDate);
+    formData.append("startTime", batchData.startTime);
     formData.append("totalSeats", batchData.totalSeats.toString());
     formData.append("remainingSeats", batchData.remainingSeats.toString());
     formData.append("duration", batchData.duration);
@@ -634,7 +622,54 @@ class ApiClient {
     return response.json();
   }
 
+  async getBatchById(id: string): Promise<{ batch: Batch }> {
+    const response = await fetch(`${this.baseUrl}/batches/${id}`, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
 
+    if (!response.ok) {
+      if (response.status === 404) {
+        throw new Error("Batch not found");
+      }
+      throw new Error(`Failed to fetch batch: ${response.statusText}`);
+    }
+
+    return response.json();
+  }
+
+  async updateBatch(
+    id: string,
+    batchData: Partial<{
+      course: string;
+      batchCode: string;
+      startDate: string;
+      startTime: string;
+      totalSeats: number;
+      remainingSeats: number;
+      duration: string;
+      teacher: string;
+      active: boolean;
+      imageUrl: string; // Add imageUrl parameter
+    }>
+  ): Promise<{ isSuccess: boolean }> {
+    const response = await fetch(`${this.baseUrl}/batches/${id}`, {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(batchData),
+    });
+
+    if (!response.ok) {
+      const errorData = await response.text();
+      throw new Error(`Failed to update batch: ${errorData}`);
+    }
+
+    return response.json();
+  }
 }
 
 export default new ApiClient("https://shark-app-ixo3s.ondigitalocean.app");
