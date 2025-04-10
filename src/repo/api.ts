@@ -35,6 +35,7 @@ interface CategoryQueryParams {
 interface UpdateCategoryRequest {
   categoryName: string;
   categoryCode: string;
+  categoryLogo: string;
   categoryImage: string;
   categoryDescription: string;
   featured: boolean;
@@ -70,6 +71,7 @@ interface AddCategoryRequest {
   categoryName: string;
   categoryCode: string;
   categoryImage: string;
+  categoryLogo: string;
   categoryDescription: string;
   featured: boolean;
   active?: boolean;
@@ -215,6 +217,7 @@ interface GetCategoryByCodeResponseDto {
   categoryName: string;
   categoryCode: string;
   categoryImage: string;
+  categoryLogo: string;
   categoryDescription: string;
   featured: boolean;
   active: boolean;

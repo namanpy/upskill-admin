@@ -15,10 +15,12 @@ import {
 import { useMutation, useQuery } from "@tanstack/react-query";
 import apiClient from "../../repo/api";
 import { useNavigate, useParams } from "react-router-dom";
+import FileUpload from "../../components/file-upload";
 
 interface Category {
   categoryName: string;
   categoryCode: string;
+  categoryLogo: string;
   categoryDescription: string;
   categoryImage: string;
   featured: boolean;
@@ -42,6 +44,7 @@ const CategoryEdit: React.FC = () => {
     categoryCode: categoryData?.categoryCode || "",
     categoryDescription: categoryData?.categoryDescription || "",
     categoryImage: categoryData?.categoryImage || "",
+    categoryLogo: categoryData?.categoryLogo || "",
     featured: categoryData?.featured || false,
     active: categoryData?.active || true,
   });
@@ -54,6 +57,7 @@ const CategoryEdit: React.FC = () => {
         categoryCode: categoryData.categoryCode,
         categoryDescription: categoryData.categoryDescription,
         categoryImage: categoryData.categoryImage,
+        categoryLogo: categoryData.categoryLogo,
         featured: categoryData.featured,
         active: categoryData.active,
       });
@@ -87,6 +91,28 @@ const CategoryEdit: React.FC = () => {
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     updateCategoryMutation.mutate();
+  };
+
+  const handleLogoUploadComplete = (
+    files: { filename: string; fileId: string; fileUrl: string }[]
+  ) => {
+    if (files.length > 0) {
+      setFormData((prev) => ({
+        ...prev,
+        categoryLogo: files[0].fileUrl, // Set the categoryLogo to the uploaded file URL
+      }));
+    }
+  };
+
+  const handleImageUploadComplete = (
+    files: { filename: string; fileId: string; fileUrl: string }[]
+  ) => {
+    if (files.length > 0) {
+      setFormData((prev) => ({
+        ...prev,
+        categoryImage: files[0].fileUrl,
+      }));
+    }
   };
 
   if (isLoading) {
@@ -160,6 +186,37 @@ const CategoryEdit: React.FC = () => {
                   variant="outlined"
                   error={!!error}
                 />
+              </Box>
+
+              <Box sx={{ width: "100%" }}>
+                <Typography variant="subtitle1" gutterBottom>
+                  Category Logo
+                </Typography>
+                <FileUpload
+                  onUploadComplete={handleLogoUploadComplete}
+                  accept="image/*"
+                  minified={true}
+                />
+              </Box>
+
+              <Box sx={{ width: "100%" }}>
+                <Typography variant="subtitle1" gutterBottom>
+                  Category Image
+                </Typography>
+                <FileUpload
+                  onUploadComplete={handleImageUploadComplete}
+                  accept="image/*"
+                  minified={true}
+                />
+                {formData.categoryImage && (
+                  <Box sx={{ mt: 2 }}>
+                    <img
+                      src={formData.categoryImage}
+                      alt="Category preview"
+                      style={{ maxWidth: "200px", maxHeight: "200px" }}
+                    />
+                  </Box>
+                )}
               </Box>
 
               <Box sx={{ flex: "1 1 calc(50% - 1.5rem)", minWidth: "250px" }}>
