@@ -1,4 +1,4 @@
-import { Banner, PremiumLearningExperience, Stat, Banner3, Banner4, Story } from "../types/index";
+import { Banner, PremiumLearningExperience, Stat, Banner3, Banner4, Story,HiringPartner } from "../types/index";
 
 const API_BASE_URL = 'https://shark-app-ixo3s.ondigitalocean.app';
 
@@ -453,6 +453,76 @@ export const deleteStory = async (id: string): Promise<void> => {
     if (!response.ok) throw new Error('Failed to delete story');
   } catch (error) {
     console.error('Error deleting story:', error);
+    throw error;
+  }
+};
+
+
+
+// Hiring Partners-related functions
+export const fetchHiringPartners = async (): Promise<HiringPartner[]> => {
+  try {
+    const response = await fetch(`${API_BASE_URL}/hiring-partners`);
+    if (!response.ok) throw new Error('Failed to fetch hiring partners');
+    const data = await response.json();
+    return data.hiringPartners || []; // Adjust if response is singular
+  } catch (error) {
+    console.error('Error fetching hiring partners:', error);
+    throw error;
+  }
+};
+
+export const createHiringPartner = async (formData: FormData): Promise<HiringPartner> => {
+  try {
+    const response = await fetch(`${API_BASE_URL}/hiring-partners`, {
+      method: 'POST',
+      body: formData,
+    });
+    if (!response.ok) throw new Error('Failed to create hiring partner');
+    return await response.json();
+  } catch (error) {
+    console.error('Error creating hiring partner:', error);
+    throw error;
+  }
+};
+
+export const updateHiringPartner = async (id: string, formData: FormData): Promise<HiringPartner> => {
+  try {
+    const response = await fetch(`${API_BASE_URL}/hiring-partners/${id}`, {
+      method: 'PUT',
+      body: formData,
+    });
+    if (!response.ok) throw new Error('Failed to update hiring partner');
+    return await response.json();
+  } catch (error) {
+    console.error('Error updating hiring partner:', error);
+    throw error;
+  }
+};
+
+export const updateHiringPartnerActive = async (id: string, active: boolean): Promise<HiringPartner> => {
+  try {
+    const response = await fetch(`${API_BASE_URL}/hiring-partners/${id}`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ active }),
+    });
+    if (!response.ok) throw new Error('Failed to update hiring partner status');
+    return await response.json();
+  } catch (error) {
+    console.error('Error updating hiring partner status:', error);
+    throw error;
+  }
+};
+
+export const deleteHiringPartner = async (id: string): Promise<void> => {
+  try {
+    const response = await fetch(`${API_BASE_URL}/hiring-partners/${id}`, {
+      method: 'DELETE',
+    });
+    if (!response.ok) throw new Error('Failed to delete hiring partner');
+  } catch (error) {
+    console.error('Error deleting hiring partner:', error);
     throw error;
   }
 };
