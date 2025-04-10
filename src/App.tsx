@@ -23,7 +23,7 @@ import BatchesList from "./pages/batches/batches-list";
 import BatchAdd from "./pages/batches/batches-add";
 import { LocalizationProvider } from "@mui/x-date-pickers";
 import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFnsV3";
-import { BannerList, BannerAdd, BannerEdit ,PremiumLearningAdd, PremiumLearningList, PremiumLearningEdit, StatsAdd, StatsEdit, StatsList, Banner3Add, Banner3Edit,Banner3List, Banner4Add, Banner4List, Banner4Edit  } from './pages/index'
+import { BannerList, BannerAdd, BannerEdit ,PremiumLearningAdd, PremiumLearningList, PremiumLearningEdit, StatsAdd, StatsEdit, StatsList, Banner3Add, Banner3Edit,Banner3List, Banner4Add, Banner4List, Banner4Edit, StoriesAdd,StoriesEdit, StoriesList  } from './pages/index'
 import BatchEdit from "./pages/batches/batches-edit";
 
 
@@ -281,6 +281,30 @@ const AppContent = () => {
               element={
                 <ProtectedRoute>
                   <Banner4Add />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/stories/add"
+              element={
+                <ProtectedRoute>
+                  <StoriesAdd />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/stories/list"
+              element={
+                <ProtectedRoute>
+                  <StoriesList />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/stories/edit/:id"
+              element={
+                <ProtectedRoute>
+                  <StoriesEdit />
                 </ProtectedRoute>
               }
             />

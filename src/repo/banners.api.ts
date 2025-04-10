@@ -1,4 +1,4 @@
-import { Banner, PremiumLearningExperience, Stat, Banner3, Banner4 } from "../types/index";
+import { Banner, PremiumLearningExperience, Stat, Banner3, Banner4, Story } from "../types/index";
 
 const API_BASE_URL = 'https://shark-app-ixo3s.ondigitalocean.app';
 
@@ -383,6 +383,76 @@ export const deleteBanner4 = async (id: string): Promise<void> => {
     if (!response.ok) throw new Error('Failed to delete banner4');
   } catch (error) {
     console.error('Error deleting banner4:', error);
+    throw error;
+  }
+};
+
+
+
+// Stories-related functions
+export const fetchStories = async (): Promise<Story[]> => {
+  try {
+    const response = await fetch(`${API_BASE_URL}/stories`);
+    if (!response.ok) throw new Error('Failed to fetch stories');
+    const data = await response.json();
+    return data.stories || []; // Adjust if response is singular
+  } catch (error) {
+    console.error('Error fetching stories:', error);
+    throw error;
+  }
+};
+
+export const createStory = async (formData: FormData): Promise<Story> => {
+  try {
+    const response = await fetch(`${API_BASE_URL}/stories`, {
+      method: 'POST',
+      body: formData,
+    });
+    if (!response.ok) throw new Error('Failed to create story');
+    return await response.json();
+  } catch (error) {
+    console.error('Error creating story:', error);
+    throw error;
+  }
+};
+
+export const updateStory = async (id: string, formData: FormData): Promise<Story> => {
+  try {
+    const response = await fetch(`${API_BASE_URL}/stories/${id}`, {
+      method: 'PUT',
+      body: formData,
+    });
+    if (!response.ok) throw new Error('Failed to update story');
+    return await response.json();
+  } catch (error) {
+    console.error('Error updating story:', error);
+    throw error;
+  }
+};
+
+export const updateStoryWallOfFame = async (id: string, wallOfFame: boolean): Promise<Story> => {
+  try {
+    const response = await fetch(`${API_BASE_URL}/stories/${id}`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ wallOfFame }),
+    });
+    if (!response.ok) throw new Error('Failed to update story wall of fame status');
+    return await response.json();
+  } catch (error) {
+    console.error('Error updating story wall of fame status:', error);
+    throw error;
+  }
+};
+
+export const deleteStory = async (id: string): Promise<void> => {
+  try {
+    const response = await fetch(`${API_BASE_URL}/stories/${id}`, {
+      method: 'DELETE',
+    });
+    if (!response.ok) throw new Error('Failed to delete story');
+  } catch (error) {
+    console.error('Error deleting story:', error);
     throw error;
   }
 };
