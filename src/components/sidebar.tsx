@@ -134,6 +134,15 @@ const menuItems: MenuItem[] = [
     ],
   },
   {
+    displayName: "Hiring Partenar",
+    route: "/hiring-partners",
+    icon: SchoolIcon,
+    subItems: [
+      { displayName: "list Hiring Partenar ", route: "/hiring-partners/list" },
+      { displayName: "add Hiring Partenar", route: "/hiring-partners/add" },
+    ],
+  },
+  {
     displayName: "Settings",
     route: "/settings",
     icon: SettingsIcon,
