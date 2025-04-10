@@ -519,13 +519,31 @@ class ApiClient {
   }
 
   // Add this method to ApiClient class
-  async uploadFiles(files: File[]): Promise<FileResponse> {
+  async uploadFiles(
+    files: File[],
+    {
+      attachment,
+      attachmentName,
+    }: { attachment?: boolean; attachmentName?: string } = {}
+  ): Promise<FileResponse> {
     const formData = new FormData();
     files.forEach((file) => {
       formData.append("files", file);
     });
 
-    const response = await fetch(`${this.baseUrl}/file`, {
+    const queryParams = new URLSearchParams();
+    if (attachment !== undefined) {
+      queryParams.append("attachment", attachment.toString());
+    }
+    if (attachmentName) {
+      queryParams.append("attachmentName", attachmentName);
+    }
+
+    const url = `${this.baseUrl}/file${
+      queryParams.toString() ? "?" + queryParams.toString() : ""
+    }`;
+
+    const response = await fetch(url, {
       method: "POST",
       body: formData,
     });

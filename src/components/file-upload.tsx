@@ -29,6 +29,8 @@ interface FileUploadProps {
   accept?: string;
   maxSize?: number; // in bytes
   minified?: boolean; // New prop for minified display
+  attachment?: boolean;
+  attachmentName?: string;
 }
 
 const FileUpload: React.FC<FileUploadProps> = ({
@@ -38,6 +40,8 @@ const FileUpload: React.FC<FileUploadProps> = ({
   accept = "*/*",
   maxSize = 5 * 1024 * 1024, // 5MB default
   minified = false, // Default to full display
+  attachment = false,
+  attachmentName,
 }) => {
   const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
   const [selectedPreviews, setSelectedPreviews] = useState<string[]>(previews);
@@ -48,7 +52,11 @@ const FileUpload: React.FC<FileUploadProps> = ({
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const uploadMutation = useMutation({
-    mutationFn: (files: File[]) => apiClient.uploadFiles(files),
+    mutationFn: (files: File[]) =>
+      apiClient.uploadFiles(files, {
+        attachment,
+        attachmentName,
+      }),
     onSuccess: (data) => {
       setUploadedFiles((prev) => [...prev, ...data.files]);
       setSelectedFiles([]);

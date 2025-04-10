@@ -568,6 +568,8 @@ const AddCourseForm = () => {
               <FileUpload
                 accept=".pdf"
                 multiple={false}
+                attachment={true}
+                attachmentName={`upskillab-brochure.pdf`}
                 onUploadComplete={(files) => {
                   if (files.length > 0) {
                     setCourse((prev) => ({
