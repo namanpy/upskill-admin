@@ -601,6 +601,8 @@ const CourseEditForm = () => {
               <FileUpload
                 accept=".pdf"
                 multiple={false}
+                attachment={true}
+                attachmentName={`upskillab-brochure.pdf`}
                 previews={[course.brochure]}
                 onUploadComplete={(files) => {
                   if (files.length > 0) {
