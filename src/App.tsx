@@ -23,9 +23,31 @@ import BatchesList from "./pages/batches/batches-list";
 import BatchAdd from "./pages/batches/batches-add";
 import { LocalizationProvider } from "@mui/x-date-pickers";
 import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFnsV3";
-import { BannerList, BannerAdd, BannerEdit ,PremiumLearningAdd, PremiumLearningList, PremiumLearningEdit, StatsAdd, StatsEdit, StatsList, Banner3Add, Banner3Edit,Banner3List, Banner4Add, Banner4List, Banner4Edit, StoriesAdd,StoriesEdit, StoriesList,HiringPartnersAdd, HiringPartnersList, HiringPartnersEdit  } from './pages/index'
+import {
+  BannerList,
+  BannerAdd,
+  BannerEdit,
+  PremiumLearningAdd,
+  PremiumLearningList,
+  PremiumLearningEdit,
+  StatsAdd,
+  StatsEdit,
+  StatsList,
+  Banner3Add,
+  Banner3Edit,
+  Banner3List,
+  Banner4Add,
+  Banner4List,
+  Banner4Edit,
+  StoriesAdd,
+  StoriesEdit,
+  StoriesList,
+  HiringPartnersAdd,
+  HiringPartnersList,
+  HiringPartnersEdit,
+} from "./pages/index";
 import BatchEdit from "./pages/batches/batches-edit";
-
+import OrdersList from "./pages/orders/orders.list";
 
 const queryClient = new QueryClient();
 
@@ -232,7 +254,7 @@ const AppContent = () => {
               path="/stats/add"
               element={
                 <ProtectedRoute>
-                  <StatsAdd  />
+                  <StatsAdd />
                 </ProtectedRoute>
               }
             />
@@ -240,7 +262,7 @@ const AppContent = () => {
               path="/banner3/add"
               element={
                 <ProtectedRoute>
-                  <Banner3Add  />
+                  <Banner3Add />
                 </ProtectedRoute>
               }
             />
@@ -312,7 +334,7 @@ const AppContent = () => {
               path="/hiring-partners/list"
               element={
                 <ProtectedRoute>
-                  < HiringPartnersList/>
+                  <HiringPartnersList />
                 </ProtectedRoute>
               }
             />
@@ -320,7 +342,7 @@ const AppContent = () => {
               path="/hiring-partners/add"
               element={
                 <ProtectedRoute>
-                  < HiringPartnersAdd/>
+                  <HiringPartnersAdd />
                 </ProtectedRoute>
               }
             />
@@ -328,10 +350,20 @@ const AppContent = () => {
               path="/hiring-partners/edit/:id"
               element={
                 <ProtectedRoute>
-                  < HiringPartnersEdit/>
+                  <HiringPartnersEdit />
                 </ProtectedRoute>
               }
             />
+
+            <Route
+              path="/orders/list"
+              element={
+                <ProtectedRoute>
+                  <OrdersList />
+                </ProtectedRoute>
+              }
+            />
+
             <Route path="*" element={<div>404 Not Found</div>} />
           </Routes>
         </div>

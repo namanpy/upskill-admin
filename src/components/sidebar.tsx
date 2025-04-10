@@ -20,6 +20,7 @@ import BarChartIcon from "@mui/icons-material/BarChart";
 import ImageIcon from "@mui/icons-material/Image";
 import StoryIcon from "@mui/icons-material/Book";
 import BlogIcon from "@mui/icons-material/Article";
+import MoneyIcon from "@mui/icons-material/Money";
 
 // Define the type for sub menu items
 type SubMenuItem = {
@@ -72,6 +73,12 @@ const menuItems: MenuItem[] = [
       { displayName: "All Batches", route: "/batches/list" },
       { displayName: "Add Batch", route: "/batches/add" },
     ],
+  },
+  {
+    displayName: "Orders",
+    route: "/orders",
+    icon: MoneyIcon,
+    subItems: [{ displayName: "All Orders", route: "/orders/list" }],
   },
   {
     displayName: "Stats",
