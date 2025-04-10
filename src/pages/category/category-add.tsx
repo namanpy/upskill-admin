@@ -14,12 +14,14 @@ import {
 import { useMutation } from "@tanstack/react-query";
 import apiClient from "../../repo/api";
 import { useNavigate } from "react-router-dom";
+import FileUpload from "../../components/file-upload";
 
 const CategoryAdd: React.FC = () => {
   const navigate = useNavigate();
   const [formData, setFormData] = useState({
     categoryName: "",
     categoryCode: "",
+    categoryLogo: "",
     categoryDescription: "",
     categoryImage: "",
     featured: false,
@@ -48,6 +50,28 @@ const CategoryAdd: React.FC = () => {
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     addCategoryMutation.mutate(formData);
+  };
+
+  const handleLogoUploadComplete = (
+    files: { filename: string; fileId: string; fileUrl: string }[]
+  ) => {
+    if (files.length > 0) {
+      setFormData((prev) => ({
+        ...prev,
+        categoryLogo: files[0].fileUrl, // Set the categoryLogo to the uploaded file URL
+      }));
+    }
+  };
+
+  const handleImageUploadComplete = (
+    files: { filename: string; fileId: string; fileUrl: string }[]
+  ) => {
+    if (files.length > 0) {
+      setFormData((prev) => ({
+        ...prev,
+        categoryImage: files[0].fileUrl,
+      }));
+    }
   };
 
   return (
@@ -93,20 +117,6 @@ const CategoryAdd: React.FC = () => {
                 <TextField
                   fullWidth
                   required
-                  label="Category Image URL"
-                  name="categoryImage"
-                  value={formData.categoryImage}
-                  onChange={handleChange}
-                  placeholder="Enter category image URL"
-                  variant="outlined"
-                  error={addCategoryMutation.isError}
-                />
-              </Box>
-
-              <Box sx={{ width: "100%" }}>
-                <TextField
-                  fullWidth
-                  required
                   multiline
                   rows={4}
                   label="Description"
@@ -117,6 +127,37 @@ const CategoryAdd: React.FC = () => {
                   variant="outlined"
                   error={addCategoryMutation.isError}
                 />
+              </Box>
+
+              <Box sx={{ width: "100%" }}>
+                <Typography variant="subtitle1" gutterBottom>
+                  Category Logo
+                </Typography>
+                <FileUpload
+                  onUploadComplete={handleLogoUploadComplete}
+                  accept="image/*"
+                  minified={true}
+                />
+              </Box>
+
+              <Box sx={{ width: "100%" }}>
+                <Typography variant="subtitle1" gutterBottom>
+                  Category Image
+                </Typography>
+                <FileUpload
+                  onUploadComplete={handleImageUploadComplete}
+                  accept="image/*"
+                  minified={true}
+                />
+                {formData.categoryImage && (
+                  <Box sx={{ mt: 2 }}>
+                    <img
+                      src={formData.categoryImage}
+                      alt="Category preview"
+                      style={{ maxWidth: "200px", maxHeight: "200px" }}
+                    />
+                  </Box>
+                )}
               </Box>
 
               <Box sx={{ flex: "1 1 calc(50% - 1.5rem)", minWidth: "250px" }}>

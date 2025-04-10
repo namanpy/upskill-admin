@@ -16,6 +16,10 @@ import SchoolIcon from "@mui/icons-material/School";
 import SettingsIcon from "@mui/icons-material/Settings";
 import ExpandLess from "@mui/icons-material/ExpandLess";
 import ExpandMore from "@mui/icons-material/ExpandMore";
+import BarChartIcon from "@mui/icons-material/BarChart";
+import ImageIcon from "@mui/icons-material/Image";
+import StoryIcon from "@mui/icons-material/Book";
+import BlogIcon from "@mui/icons-material/Article";
 
 // Define the type for sub menu items
 type SubMenuItem = {
@@ -65,31 +69,31 @@ const menuItems: MenuItem[] = [
     route: "/batches",
     icon: SchoolIcon,
     subItems: [
-      { displayName: "All Batchse", route: "/batches/list" },
+      { displayName: "All Batches", route: "/batches/list" },
       { displayName: "Add Batch", route: "/batches/add" },
     ],
   },
   {
-    displayName: "stats",
+    displayName: "Stats",
     route: "/stats",
-    icon: SchoolIcon,
+    icon: BarChartIcon,
     subItems: [
       { displayName: "All Stats", route: "/stats/list" },
-      { displayName: "Add stats", route: "/stats/add" },
+      { displayName: "Add Stats", route: "/stats/add" },
     ],
   },
   {
-    displayName: "banners",
+    displayName: "Banner 1",
     route: "/banners",
-    icon: SchoolIcon,
+    icon: ImageIcon,
     subItems: [
-      { displayName: "All banners", route: "/banners/list" },
-      { displayName: "Add banners", route: "/banners/add" },
+      { displayName: "All banners 1", route: "/banners/list" },
+      { displayName: "Add banners 1", route: "/banners/add" },
     ],
   },
 
   {
-    displayName: "banner 2",
+    displayName: "Banner 2",
     route: "/banner2",
     icon: SchoolIcon,
     subItems: [
@@ -98,7 +102,7 @@ const menuItems: MenuItem[] = [
     ],
   },
   {
-    displayName: "banner 3",
+    displayName: "Banner 3",
     route: "/banner3",
     icon: SchoolIcon,
     subItems: [
@@ -107,7 +111,7 @@ const menuItems: MenuItem[] = [
     ],
   },
   {
-    displayName: "banner 4",
+    displayName: "Banner 4",
     route: "/banner4",
     icon: SchoolIcon,
     subItems: [
@@ -116,21 +120,21 @@ const menuItems: MenuItem[] = [
     ],
   },
   {
-    displayName: "stories",
+    displayName: "Stories",
     route: "/stories",
-    icon: SchoolIcon,
+    icon: StoryIcon,
     subItems: [
-      { displayName: "stories", route: "/stories/list" },
-      { displayName: "add stories", route: "/stories/add" },
+      { displayName: "Stories", route: "/stories/list" },
+      { displayName: "Add Stories", route: "/stories/add" },
     ],
   },
   {
-    displayName: "blogs",
+    displayName: "Blogs",
     route: "/blogs",
-    icon: SchoolIcon,
+    icon: BlogIcon,
     subItems: [
-      { displayName: "list blogs", route: "/blogs/list" },
-      { displayName: "add blogs", route: "/blogs/add" },
+      { displayName: "List Blogs", route: "/blogs/list" },
+      { displayName: "Add Blogs", route: "/blogs/add" },
     ],
   },
   {
@@ -142,8 +146,6 @@ const menuItems: MenuItem[] = [
       { displayName: "Security", route: "/settings/security" },
     ],
   },
-  
-
 ];
 
 const Sidebar = () => {
