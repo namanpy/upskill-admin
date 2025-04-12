@@ -7,6 +7,7 @@ import { Banner3 } from "./Banner3";
 import { Banner4 } from "./banner4";
 import { Story } from "./Story.";
 import { HiringPartner } from "./HiringPartner";
+import { University } from './University'
 
 
 
@@ -18,5 +19,6 @@ export type {
     Banner4,
     Story,  
     HiringPartner,
-    Blog
+    Blog,
+    University
 }

@@ -1,4 +1,4 @@
-import { Banner, PremiumLearningExperience, Stat, Banner3, Banner4, Story,HiringPartner, Blog } from "../types/index";
+import { Banner, PremiumLearningExperience, Stat, Banner3, Banner4, Story,HiringPartner, Blog, University } from "../types/index";
 
 const API_BASE_URL = 'https://shark-app-ixo3s.ondigitalocean.app';
 
@@ -592,6 +592,75 @@ export const deleteBlog = async (id: string): Promise<void> => {
     if (!response.ok) throw new Error('Failed to delete blog');
   } catch (error) {
     console.error('Error deleting blog:', error);
+    throw error;
+  }
+};
+
+
+// Universities-related functions
+export const fetchUniversities = async (): Promise<University[]> => {
+  try {
+    const response = await fetch(`${API_BASE_URL}/universities`);
+    if (!response.ok) throw new Error('Failed to fetch universities');
+    const data = await response.json();
+    return data.universities || []; // Matches the array response
+  } catch (error) {
+    console.error('Error fetching universities:', error);
+    throw error;
+  }
+};
+
+export const createUniversity = async (formData: FormData): Promise<University> => {
+  try {
+    const response = await fetch(`${API_BASE_URL}/universities`, {
+      method: 'POST',
+      body: formData,
+    });
+    if (!response.ok) throw new Error('Failed to create university');
+    return await response.json();
+  } catch (error) {
+    console.error('Error creating university:', error);
+    throw error;
+  }
+};
+
+export const updateUniversity = async (id: string, formData: FormData): Promise<University> => {
+  try {
+    const response = await fetch(`${API_BASE_URL}/universities/${id}`, {
+      method: 'PUT',
+      body: formData,
+    });
+    if (!response.ok) throw new Error('Failed to update university');
+    return await response.json();
+  } catch (error) {
+    console.error('Error updating university:', error);
+    throw error;
+  }
+};
+
+export const updateUniversityCertification = async (id: string, certification: boolean): Promise<University> => {
+  try {
+    const response = await fetch(`${API_BASE_URL}/universities/${id}`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ certification }),
+    });
+    if (!response.ok) throw new Error('Failed to update university certification status');
+    return await response.json();
+  } catch (error) {
+    console.error('Error updating university certification status:', error);
+    throw error;
+  }
+};
+
+export const deleteUniversity = async (id: string): Promise<void> => {
+  try {
+    const response = await fetch(`${API_BASE_URL}/universities/${id}`, {
+      method: 'DELETE',
+    });
+    if (!response.ok) throw new Error('Failed to delete university');
+  } catch (error) {
+    console.error('Error deleting university:', error);
     throw error;
   }
 };

@@ -145,6 +145,15 @@ const menuItems: MenuItem[] = [
     ],
   },
   {
+    displayName: "universities Partenar",
+    route: "/universities",
+    icon: SchoolIcon,
+    subItems: [
+      { displayName: "list universities Partenar ", route: "/universities/list" },
+      { displayName: "add universities Partenar", route: "/universities/add" },
+    ],
+  },
+  {
     displayName: "Hiring Partenar",
     route: "/hiring-partners",
     icon: SchoolIcon,

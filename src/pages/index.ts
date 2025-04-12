@@ -1,3 +1,4 @@
+import { University } from './../types/University';
 // import  PremiumLearningAdd  from './banner2/premium-learning-add';
 // import PremiumLearningEdit from './banner2/premium-learning-edit';
 // import PremiumLearningList from './banner2/premium-learning-list';
@@ -43,3 +44,6 @@ export { default as HiringPartnersList } from './public/hiring-partners/hiring-p
 export { default as BlogsAdd } from './blogs/blogs-add'
 export { default as BlogsEdit } from './blogs/blogs-edit'
 export { default as BlogsList } from './blogs/blogs-list'
+export { default as UniversitiesAdd } from './universities/universities-add'
+export { default as UniversitiesEdit } from './universities/universities-edit'
+export { default as UniversitiesList } from './universities/universities-list'
