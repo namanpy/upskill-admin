@@ -45,6 +45,9 @@ import {
   HiringPartnersAdd,
   HiringPartnersList,
   HiringPartnersEdit,
+  BlogsList,
+  BlogsAdd,
+  BlogsEdit
 } from "./pages/index";
 import BatchEdit from "./pages/batches/batches-edit";
 import OrdersList from "./pages/orders/orders.list";
@@ -360,6 +363,30 @@ const AppContent = () => {
               element={
                 <ProtectedRoute>
                   <OrdersList />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/blogs/list"
+              element={
+                <ProtectedRoute>
+                  <BlogsList />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/blogs/add"
+              element={
+                <ProtectedRoute>
+                  <BlogsAdd />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/blogs/edit/:id"
+              element={
+                <ProtectedRoute>
+                  <BlogsEdit />
                 </ProtectedRoute>
               }
             />
