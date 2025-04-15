@@ -2,8 +2,8 @@
 import React, { useState, useEffect } from 'react';
 import { Container, Paper, Typography, Box, TextField, Button, Switch, FormControlLabel, Alert } from '@mui/material';
 import { useParams, useNavigate } from 'react-router-dom';
-import { fetchStories, updateStory, } from '../../../repo/banners.api';
-import { Story  } from '../../../types'
+import { fetchStories, updateStory,  } from '../../../repo/banners.api';
+import { Story }  from '../../../types/Story'
 
 const StoriesEdit = () => {
   const { id } = useParams<{ id: string }>();
@@ -41,7 +41,7 @@ const StoriesEdit = () => {
           companyName: foundStory.companyName,
           before: foundStory.before,
           after: foundStory.after,
-          skills: foundStory.skills.join(', '), // Convert array to string
+          skills: foundStory.skills.join(', '), // Join array into string for form
           wallOfFame: foundStory.wallOfFame,
           duration: foundStory.duration,
           batch_Year: foundStory.batch_Year,
@@ -82,7 +82,9 @@ const StoriesEdit = () => {
     data.append('companyName', formData.companyName);
     data.append('before', formData.before);
     data.append('after', formData.after);
-    data.append('skills', formData.skills); // Send as string, backend to parse
+    // Split skills by comma, trim, and send as JSON array
+    const skillsArray = formData.skills.split(',').map(skill => skill.trim());
+    data.append('skills', JSON.stringify(skillsArray));
     data.append('wallOfFame', formData.wallOfFame.toString());
     data.append('duration', formData.duration);
     data.append('batch_Year', formData.batch_Year);
@@ -116,7 +118,7 @@ const StoriesEdit = () => {
             <TextField label="Company Name" name="companyName" value={formData.companyName} onChange={handleChange} required />
             <TextField label="Before" name="before" value={formData.before} onChange={handleChange} required />
             <TextField label="After" name="after" value={formData.after} onChange={handleChange} required />
-            <TextField label="Skills (comma-separated)" name="skills" value={formData.skills} onChange={handleChange} required />
+            <TextField label="Skills (comma-separated, e.g., JavaScript, React)" name="skills" value={formData.skills} onChange={handleChange} required />
             <TextField label="Duration" name="duration" value={formData.duration} onChange={handleChange} required />
             <TextField label="Batch Year" name="batch_Year" value={formData.batch_Year} onChange={handleChange} required />
             <TextField label="Salary Increase (%)" name="salaryIncrease" value={formData.salaryIncrease} onChange={handleChange} required />

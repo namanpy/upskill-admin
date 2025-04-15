@@ -5,7 +5,7 @@ import { PremiumLearningExperience } from './banner2'
 import { Stat } from "./stats";
 import { Banner3 } from "./Banner3";
 import { Banner4 } from "./banner4";
-import { Story } from "./Story.";
+import { Story } from "./Story";
 import { HiringPartner } from "./HiringPartner";
 import { University } from './University'
 
