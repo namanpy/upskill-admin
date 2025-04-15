@@ -5,13 +5,22 @@ import { useMutation } from '@tanstack/react-query';
 import { useNavigate } from 'react-router-dom';
 import { createUniversity } from '../../repo/banners.api';
 
+
+// // src/pages/universities/universities-add.tsx
+// import React, { useState } from 'react';
+// import { Container, Paper, Typography, Box, TextField, Button, Switch, FormControlLabel, Alert } from '@mui/material';
+// import { useMutation } from '@tanstack/react-query';
+// import { useNavigate } from 'react-router-dom';
+// import { createUniversity } from '../../repo/api';
+
 const UniversitiesAdd = () => {
   const navigate = useNavigate();
   const [formData, setFormData] = useState({
     institutionType: '',
     deliveryMode: '',
     programType: '',
-    ratings: '',
+    programs: '',
+    rating: '',
     reviews: '',
     certification: false,
   });
@@ -23,10 +32,13 @@ const UniversitiesAdd = () => {
       const data = new FormData();
       data.append('institutionType', formData.institutionType);
       data.append('deliveryMode', formData.deliveryMode);
-      // Split the comma-separated string and trim whitespace, then join as JSON array
-      const programTypeArray = formData.programType.split(',').map(item => item.trim());
-      data.append('programType', JSON.stringify(programTypeArray)); // Send as JSON array
-      data.append('ratings', formData.ratings);
+      data.append('programType', formData.programType);
+      // Split programs by comma, trim, and append as individual fields
+      const programsArray = formData.programs.split(',').map(program => program.trim());
+      programsArray.forEach((program, index) => {
+        if (program) data.append('programs[]', program); // Use programs[] to indicate an array
+      });
+      data.append('rating', formData.rating);
       data.append('reviews', formData.reviews);
       data.append('certification', formData.certification.toString());
       if (imageFile) data.append('image', imageFile);
@@ -70,8 +82,9 @@ const UniversitiesAdd = () => {
           <Box sx={{ display: 'grid', gap: 3 }}>
             <TextField label="Institution Type" name="institutionType" value={formData.institutionType} onChange={handleChange} required />
             <TextField label="Delivery Mode" name="deliveryMode" value={formData.deliveryMode} onChange={handleChange} required />
-            <TextField label="Program Type (e.g., UG Programs, MBA, M.Sc.)" name="programType" value={formData.programType} onChange={handleChange} required />
-            <TextField label="Ratings" name="ratings" value={formData.ratings} onChange={handleChange} type="number" required />
+            <TextField label="Program Type" name="programType" value={formData.programType} onChange={handleChange} required />
+            <TextField label="Programs (comma-separated, e.g., B.A., B.Com, B.Sc., BBA)" name="programs" value={formData.programs} onChange={handleChange} required />
+            <TextField label="Rating" name="rating" value={formData.rating} onChange={handleChange} type="number" required />
             <TextField label="Reviews" name="reviews" value={formData.reviews} onChange={handleChange} type="number" required />
             <Box>
               <Typography variant="subtitle1" gutterBottom>

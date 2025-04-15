@@ -2,10 +2,15 @@
 import React, { useState, useEffect } from 'react';
 import { Container, Paper, Typography, Box, TextField, Button, Switch, FormControlLabel, Alert } from '@mui/material';
 import { useParams, useNavigate } from 'react-router-dom';
-import { fetchUniversities, updateUniversity, } from '../../repo/banners.api';
-import { University } from "../../types"
+import { fetchUniversities, updateUniversity,  } from '../../repo/banners.api';
+import { University }  from '../../types'
 
 
+// src/pages/universities/universities-edit.tsx
+// import React, { useState, useEffect } from 'react';
+// import { Container, Paper, Typography, Box, TextField, Button, Switch, FormControlLabel, Alert } from '@mui/material';
+// import { useParams, useNavigate } from 'react-router-dom';
+// import { fetchUniversities, updateUniversity, University } from '../../repo/api';
 
 const UniversitiesEdit = () => {
   const { id } = useParams<{ id: string }>();
@@ -15,7 +20,8 @@ const UniversitiesEdit = () => {
     institutionType: '',
     deliveryMode: '',
     programType: '',
-    ratings: '',
+    programs: '',
+    rating: '',
     reviews: '',
     certification: false,
   });
@@ -31,8 +37,9 @@ const UniversitiesEdit = () => {
         setFormData({
           institutionType: foundUniversity.institutionType,
           deliveryMode: foundUniversity.deliveryMode,
-          programType: foundUniversity.programType.join(', '), // Join array into string for form
-          ratings: foundUniversity.ratings.toString(),
+          programType: foundUniversity.programType,
+          programs: foundUniversity.programs ? foundUniversity.programs.join(', ') : '',
+          rating: foundUniversity.rating.toString(),
           reviews: foundUniversity.reviews.toString(),
           certification: foundUniversity.certification,
         });
@@ -61,10 +68,12 @@ const UniversitiesEdit = () => {
     const data = new FormData();
     data.append('institutionType', formData.institutionType);
     data.append('deliveryMode', formData.deliveryMode);
-    // Split the comma-separated string and trim whitespace, then join as JSON array
-    const programTypeArray = formData.programType.split(',').map(item => item.trim());
-    data.append('programType', JSON.stringify(programTypeArray)); // Send as JSON array
-    data.append('ratings', formData.ratings);
+    data.append('programType', formData.programType);
+    const programsArray = formData.programs.split(',').map(program => program.trim());
+    programsArray.forEach((program, index) => {
+      if (program) data.append('programs[]', program); // Use programs[] to indicate an array
+    });
+    data.append('rating', formData.rating);
     data.append('reviews', formData.reviews);
     data.append('certification', formData.certification.toString());
     if (imageFile) data.append('image', imageFile);
@@ -90,8 +99,9 @@ const UniversitiesEdit = () => {
           <Box sx={{ display: 'grid', gap: 3 }}>
             <TextField label="Institution Type" name="institutionType" value={formData.institutionType} onChange={handleChange} required />
             <TextField label="Delivery Mode" name="deliveryMode" value={formData.deliveryMode} onChange={handleChange} required />
-            <TextField label="Program Type (e.g., UG Programs, MBA, M.Sc.)" name="programType" value={formData.programType} onChange={handleChange} required />
-            <TextField label="Ratings" name="ratings" value={formData.ratings} onChange={handleChange} type="number" required />
+            <TextField label="Program Type" name="programType" value={formData.programType} onChange={handleChange} required />
+            <TextField label="Programs (comma-separated, e.g., B.A., B.Com, B.Sc., BBA)" name="programs" value={formData.programs} onChange={handleChange} required />
+            <TextField label="Rating" name="rating" value={formData.rating} onChange={handleChange} type="number" required />
             <TextField label="Reviews" name="reviews" value={formData.reviews} onChange={handleChange} type="number" required />
             <Box>
               <Typography variant="subtitle1" gutterBottom>

@@ -1,9 +1,16 @@
 // src/pages/universities/universities-list.tsx
 import React, { useEffect, useState } from 'react';
-import { Container, Paper, Typography, Grid as MuiGrid, Card, CardContent, CardActions, Button, CircularProgress, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle } from '@mui/material';
+// import { Container, Paper, Typography, Grid as MuiGrid, Card, CardContent, CardActions, Button, CircularProgress, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle } from '@mui/material';
 import { fetchUniversities, updateUniversityCertification, deleteUniversity } from '../../repo/banners.api';
-import { University } from "../../types"
-import {  useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
+import { University }  from '../../types'
+// const Grid = MuiGrid as React.ComponentType<MuiGridProps>;
+
+// src/pages/universities/universities-list.tsx
+// import React, { useEffect, useState } from 'react';
+import { Container, Paper, Typography, Grid as MuiGrid, Card, CardContent, CardActions, Button, CircularProgress, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle } from '@mui/material';
+// import { fetchUniversities, University, updateUniversityCertification, deleteUniversity } from '../../repo/api';
+// import { useNavigate } from 'react-router-dom';
 
 const Grid = MuiGrid as React.ComponentType<MuiGridProps>;
 
@@ -27,6 +34,7 @@ const UniversitiesList = () => {
     const getUniversities = async () => {
       try {
         const data = await fetchUniversities();
+        console.log('Fetched universities:', data); // Debug log
         setUniversities(data);
         setLoading(false);
       } catch (err) {
@@ -66,35 +74,40 @@ const UniversitiesList = () => {
           Universities List
         </Typography>
         <MuiGrid container spacing={3}>
-          {universities.map((university) => (
-            <Grid item xs={12} sm={6} md={4} key={university._id}>
-              <Card>
-                <CardContent>
-                  <Typography variant="h6">{university.institutionType}</Typography>
-                  <Typography variant="body2">Delivery: {university.deliveryMode} | Programs: {university.programType.join(', ')}</Typography>
-                  <Typography variant="caption">Ratings: {university.ratings} | Reviews: {university.reviews}</Typography>
-                  <img src={university.imageUrl} alt={university.institutionType} style={{ maxWidth: '100%', marginTop: '10px' }} />
-                </CardContent>
-                <CardActions>
-                  <Button size="small" onClick={() => navigate(`/universities/edit/${university._id}`)}>Edit</Button>
-                  <Button
-                    size="small"
-                    onClick={() => handleToggleCertification(university._id, university.certification)}
-                    color={university.certification ? 'error' : 'success'}
-                  >
-                    {university.certification ? 'Uncertify' : 'Certify'}
-                  </Button>
-                  <Button
-                    size="small"
-                    color="error"
-                    onClick={() => setDeleteDialogOpen(university._id)}
-                  >
-                    Delete
-                  </Button>
-                </CardActions>
-              </Card>
-            </Grid>
-          ))}
+          {universities.length > 0 ? (
+            universities.map((university) => (
+              <Grid item xs={12} sm={6} md={4} key={university._id}>
+                <Card>
+                  <CardContent>
+                    <Typography variant="h6">{university.institutionType}</Typography>
+                    <Typography variant="body2">Delivery: {university.deliveryMode} | Programs: {university.programs.length > 0 ? university.programs.join(', ') : 'N/A'}</Typography>
+                    <Typography variant="caption">Rating: {university.rating} | Reviews: {university.reviews}</Typography>
+                    <img src={university.imageUrl} alt={university.institutionType} style={{ maxWidth: '100%', marginTop: '10px' }} />
+                    {university.fitCropUrl && <img src={university.fitCropUrl} alt={`${university.institutionType} cropped`} style={{ maxWidth: '100%', marginTop: '10px' }} />}
+                  </CardContent>
+                  <CardActions>
+                    <Button size="small" onClick={() => navigate(`/universities/edit/${university._id}`)}>Edit</Button>
+                    <Button
+                      size="small"
+                      onClick={() => handleToggleCertification(university._id, university.certification)}
+                      color={university.certification ? 'error' : 'success'}
+                    >
+                      {university.certification ? 'Uncertify' : 'Certify'}
+                    </Button>
+                    <Button
+                      size="small"
+                      color="error"
+                      onClick={() => setDeleteDialogOpen(university._id)}
+                    >
+                      Delete
+                    </Button>
+                  </CardActions>
+                </Card>
+              </Grid>
+            ))
+          ) : (
+            <Typography>No universities found.</Typography>
+          )}
         </MuiGrid>
       </Paper>
       <Dialog

@@ -598,12 +598,24 @@ export const deleteBlog = async (id: string): Promise<void> => {
 
 
 // Universities-related functions
+// export const fetchUniversities = async (): Promise<University[]> => {
+//   try {
+//     const response = await fetch(`${API_BASE_URL}/universities`);
+//     if (!response.ok) throw new Error('Failed to fetch universities');
+//     const data = await response.json();
+//     return data.universities || []; // Matches the array response
+//   } catch (error) {
+//     console.error('Error fetching universities:', error);
+//     throw error;
+//   }
+// };
+
 export const fetchUniversities = async (): Promise<University[]> => {
   try {
     const response = await fetch(`${API_BASE_URL}/universities`);
     if (!response.ok) throw new Error('Failed to fetch universities');
     const data = await response.json();
-    return data.universities || []; // Matches the array response
+    return data || []; // Ensure it returns an array, even if empty
   } catch (error) {
     console.error('Error fetching universities:', error);
     throw error;
