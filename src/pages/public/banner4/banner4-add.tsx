@@ -9,15 +9,33 @@ const Banner4Add = () => {
   const navigate = useNavigate();
   const [formData, setFormData] = useState({
     title: '',
+    descriptions: '',
     active: true,
   });
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [validationErrors, setValidationErrors] = useState({
+    title: '',
+    descriptions: '',
+  });
 
   const createMutation = useMutation({
     mutationFn: async () => {
+      // Validate before submission
+      const titleError = validateWords(formData.title, 6, 'Title');
+      const descriptionsError = validateWords(formData.descriptions, 20, 'Descriptions');
+
+      if (titleError || descriptionsError) {
+        setValidationErrors({
+          title: titleError,
+          descriptions: descriptionsError,
+        });
+        throw new Error('Please fix the validation errors.');
+      }
+
       const data = new FormData();
       data.append('title', formData.title);
+      data.append('descriptions', formData.descriptions);
       data.append('active', formData.active.toString());
       if (imageFile) data.append('image', imageFile);
 
@@ -33,10 +51,26 @@ const Banner4Add = () => {
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value, type, checked } = e.target;
+    const newValue = type === 'checkbox' ? checked : value;
+
+    // Real-time validation
+    let titleError = '';
+    let descriptionsError = '';
+
+    if (name === 'title') {
+      titleError = validateWords(value, 6, 'Title');
+    } else if (name === 'descriptions') {
+      descriptionsError = validateWords(value, 20, 'Descriptions');
+    }
+
     setFormData((prev) => ({
       ...prev,
-      [name]: type === 'checkbox' ? checked : value,
+      [name]: newValue,
     }));
+    setValidationErrors({
+      title: titleError,
+      descriptions: descriptionsError,
+    });
   };
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -47,6 +81,12 @@ const Banner4Add = () => {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     createMutation.mutate();
+  };
+
+  // Validation function to count words
+  const validateWords = (text: string, maxWords: number, fieldName: string): string => {
+    const words = text.trim().split(/\s+/).filter(word => word.length > 0);
+    return words.length > maxWords ? `${fieldName} cannot exceed ${maxWords} words.` : '';
   };
 
   return (
@@ -64,6 +104,19 @@ const Banner4Add = () => {
               value={formData.title}
               onChange={handleChange}
               required
+              error={!!validationErrors.title}
+              helperText={validationErrors.title || 'Max 6 words'}
+            />
+            <TextField
+              label="Descriptions"
+              name="descriptions"
+              value={formData.descriptions}
+              onChange={handleChange}
+              multiline
+              rows={4}
+              required
+              error={!!validationErrors.descriptions}
+              helperText={validationErrors.descriptions || 'Max 20 words'}
             />
             <Box>
               <Typography variant="subtitle1" gutterBottom>
@@ -86,7 +139,7 @@ const Banner4Add = () => {
                 type="submit"
                 variant="contained"
                 size="large"
-                disabled={createMutation.isPending}
+                disabled={createMutation.isPending || !!validationErrors.title || !!validationErrors.descriptions}
               >
                 {createMutation.isPending ? 'Creating...' : 'Create'}
               </Button>

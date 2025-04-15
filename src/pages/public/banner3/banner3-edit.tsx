@@ -2,8 +2,8 @@
 import React, { useState, useEffect } from 'react';
 import { Container, Paper, Typography, Box, TextField, Button, Switch, FormControlLabel, Alert } from '@mui/material';
 import { useParams, useNavigate } from 'react-router-dom';
-import { fetchBanner3s, updateBanner3,  } from '../../../repo/banners.api';
-import { Banner3 } from '../../../types'
+import { fetchBanner3s, updateBanner3 } from '../../../repo/banners.api';
+import { Banner3 } from '../../../types';
 
 const Banner3Edit = () => {
   const { id } = useParams<{ id: string }>();
@@ -11,11 +11,13 @@ const Banner3Edit = () => {
   const [banner3, setBanner3] = useState<Banner3 | null>(null);
   const [formData, setFormData] = useState({
     title: '',
-    descriptions: '',
     active: true,
   });
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [validationErrors, setValidationErrors] = useState({
+    title: '',
+  });
 
   useEffect(() => {
     const loadBanner3 = async () => {
@@ -25,7 +27,6 @@ const Banner3Edit = () => {
         setBanner3(foundBanner3);
         setFormData({
           title: foundBanner3.title,
-          descriptions: foundBanner3.descriptions,
           active: foundBanner3.active,
         });
       }
@@ -35,10 +36,22 @@ const Banner3Edit = () => {
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value, type, checked } = e.target;
+    const newValue = type === 'checkbox' ? checked : value;
+
+    // Real-time validation
+    let titleError = '';
+
+    if (name === 'title') {
+      titleError = validateWords(value, 6, 'Title');
+    }
+
     setFormData((prev) => ({
       ...prev,
-      [name]: type === 'checkbox' ? checked : value,
+      [name]: newValue,
     }));
+    setValidationErrors({
+      title: titleError,
+    });
   };
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -50,9 +63,18 @@ const Banner3Edit = () => {
     e.preventDefault();
     if (!banner3) return;
 
+    // Validate before submission
+    const titleError = validateWords(formData.title, 6, 'Title');
+
+    if (titleError) {
+      setValidationErrors({
+        title: titleError,
+      });
+      return; // Stop submission if validation fails
+    }
+
     const data = new FormData();
     data.append('title', formData.title);
-    data.append('descriptions', formData.descriptions);
     data.append('active', formData.active.toString());
     if (imageFile) data.append('image', imageFile);
 
@@ -62,6 +84,12 @@ const Banner3Edit = () => {
     } catch (err) {
       setError('Failed to update banner3');
     }
+  };
+
+  // Validation function to count words
+  const validateWords = (text: string, maxWords: number, fieldName: string): string => {
+    const words = text.trim().split(/\s+/).filter(word => word.length > 0);
+    return words.length > maxWords ? `${fieldName} cannot exceed ${maxWords} words.` : '';
   };
 
   if (!banner3) return <Typography>Loading...</Typography>;
@@ -81,15 +109,8 @@ const Banner3Edit = () => {
               value={formData.title}
               onChange={handleChange}
               required
-            />
-            <TextField
-              label="Descriptions"
-              name="descriptions"
-              value={formData.descriptions}
-              onChange={handleChange}
-              multiline
-              rows={4}
-              required
+              error={!!validationErrors.title}
+              helperText={validationErrors.title || 'Max 6 words'}
             />
             <Box>
               <Typography variant="subtitle1" gutterBottom>
@@ -108,7 +129,12 @@ const Banner3Edit = () => {
               label="Active"
             />
             <Box sx={{ mt: 2 }}>
-              <Button type="submit" variant="contained" size="large">
+              <Button
+                type="submit"
+                variant="contained"
+                size="large"
+                disabled={!!validationErrors.title}
+              >
                 Update
               </Button>
             </Box>

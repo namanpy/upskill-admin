@@ -9,17 +9,28 @@ const PremiumLearningAdd = () => {
   const navigate = useNavigate();
   const [formData, setFormData] = useState({
     title: '',
-    description: '',
     active: true,
   });
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [validationErrors, setValidationErrors] = useState({
+    title: '',
+  });
 
   const createMutation = useMutation({
     mutationFn: async () => {
+      // Validate before submission
+      const titleError = validateWords(formData.title, 6, 'Title');
+
+      if (titleError) {
+        setValidationErrors({
+          title: titleError,
+        });
+        throw new Error('Please fix the validation errors.');
+      }
+
       const data = new FormData();
       data.append('title', formData.title);
-      data.append('description', formData.description);
       data.append('active', formData.active.toString());
       if (imageFile) data.append('image', imageFile);
 
@@ -35,10 +46,22 @@ const PremiumLearningAdd = () => {
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value, type, checked } = e.target;
+    const newValue = type === 'checkbox' ? checked : value;
+
+    // Real-time validation
+    let titleError = '';
+
+    if (name === 'title') {
+      titleError = validateWords(value, 6, 'Title');
+    }
+
     setFormData((prev) => ({
       ...prev,
-      [name]: type === 'checkbox' ? checked : value,
+      [name]: newValue,
     }));
+    setValidationErrors({
+      title: titleError,
+    });
   };
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -49,6 +72,12 @@ const PremiumLearningAdd = () => {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     createMutation.mutate();
+  };
+
+  // Validation function to count words
+  const validateWords = (text: string, maxWords: number, fieldName: string): string => {
+    const words = text.trim().split(/\s+/).filter(word => word.length > 0);
+    return words.length > maxWords ? `${fieldName} cannot exceed ${maxWords} words.` : '';
   };
 
   return (
@@ -66,15 +95,8 @@ const PremiumLearningAdd = () => {
               value={formData.title}
               onChange={handleChange}
               required
-            />
-            <TextField
-              label="Description"
-              name="description"
-              value={formData.description}
-              onChange={handleChange}
-              multiline
-              rows={4}
-              required
+              error={!!validationErrors.title}
+              helperText={validationErrors.title || 'Max 6 words'}
             />
             <Box>
               <Typography variant="subtitle1" gutterBottom>
@@ -97,7 +119,7 @@ const PremiumLearningAdd = () => {
                 type="submit"
                 variant="contained"
                 size="large"
-                disabled={createMutation.isPending}
+                disabled={createMutation.isPending || !!validationErrors.title}
               >
                 {createMutation.isPending ? 'Creating...' : 'Create'}
               </Button>

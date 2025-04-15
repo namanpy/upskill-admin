@@ -3,7 +3,8 @@ import React, { useEffect, useState } from 'react';
 import { Container, Paper, Typography, Grid as MuiGrid, Card, CardContent, CardActions, Button, CircularProgress, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle } from '@mui/material';
 import { fetchPremiumLearningExperiences, updatePremiumLearningActive, deletePremiumLearningExperience } from '../../../repo/banners.api';
 import { useNavigate } from 'react-router-dom';
-import {  PremiumLearningExperience } from '../../../types'
+import { PremiumLearningExperience } from '../../../types';
+
 const Grid = MuiGrid as React.ComponentType<MuiGridProps>;
 
 interface MuiGridProps extends React.HTMLAttributes<HTMLDivElement> {
@@ -70,7 +71,6 @@ const PremiumLearningList = () => {
               <Card>
                 <CardContent>
                   <Typography variant="h6">{exp.title}</Typography>
-                  <Typography variant="body2">{exp.description.substring(0, 100)}{exp.description.length > 100 ? '...' : ''}</Typography>
                   <img src={exp.imageUrl} alt={exp.title} style={{ maxWidth: '100%', marginTop: '10px' }} />
                 </CardContent>
                 <CardActions>

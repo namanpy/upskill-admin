@@ -2,7 +2,7 @@
 import React, { useEffect, useState } from 'react';
 import { Container, Paper, Typography, Grid as MuiGrid, Card, CardContent, CardActions, Button, CircularProgress, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle } from '@mui/material';
 import { fetchBanner4s, updateBanner4Active, deleteBanner4 } from '../../../repo/banners.api';
-import { Banner4 } from '../../../types'
+import { Banner4 } from '../../../types';
 import { useNavigate } from 'react-router-dom';
 
 const Grid = MuiGrid as React.ComponentType<MuiGridProps>;
@@ -56,6 +56,15 @@ const Banner4List = () => {
     }
   };
 
+  // Function to truncate text to word limit
+  const truncateWords = (text: string, maxWords: number): string => {
+    const words = text.trim().split(/\s+/).filter(word => word.length > 0);
+    if (words.length > maxWords) {
+      return words.slice(0, maxWords).join(' ') + '...';
+    }
+    return text;
+  };
+
   if (loading) return <CircularProgress sx={{ display: 'block', margin: 'auto' }} />;
   if (error) return <Typography color="error" sx={{ textAlign: 'center' }}>{error}</Typography>;
 
@@ -70,7 +79,8 @@ const Banner4List = () => {
             <Grid item xs={12} sm={6} md={4} key={banner4._id}>
               <Card>
                 <CardContent>
-                  <Typography variant="h6">{banner4.title}</Typography>
+                  <Typography variant="h6">{truncateWords(banner4.title, 6)}</Typography>
+                  <Typography variant="body2">{truncateWords(banner4.descriptions || '', 20)}{banner4.descriptions && banner4.descriptions.length > 20 * 5 ? '...' : ''}</Typography>
                   <img src={banner4.imageUrl} alt={banner4.title} style={{ maxWidth: '100%', marginTop: '10px' }} />
                 </CardContent>
                 <CardActions>

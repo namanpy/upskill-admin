@@ -17,6 +17,11 @@ const BannerEdit = () => {
   });
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [validationErrors, setValidationErrors] = useState({
+    title: '',
+    subtitle: '',
+    description: '',
+  });
 
   useEffect(() => {
     const loadBanner = async () => {
@@ -37,10 +42,30 @@ const BannerEdit = () => {
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value, type, checked } = e.target;
+    const newValue = type === 'checkbox' ? checked : value;
+
+    // Real-time validation
+    let titleError = '';
+    let subtitleError = '';
+    let descriptionError = '';
+
+    if (name === 'title') {
+      titleError = validateWords(value, 6, 'Title');
+    } else if (name === 'subtitle') {
+      subtitleError = validateWords(value, 10, 'Subtitle');
+    } else if (name === 'description') {
+      descriptionError = validateWords(value, 20, 'Description');
+    }
+
     setFormData((prev) => ({
       ...prev,
-      [name]: type === 'checkbox' ? checked : value,
+      [name]: newValue,
     }));
+    setValidationErrors({
+      title: titleError,
+      subtitle: subtitleError,
+      description: descriptionError,
+    });
   };
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -51,6 +76,20 @@ const BannerEdit = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!banner) return;
+
+    // Validate before submission
+    const titleError = validateWords(formData.title, 6, 'Title');
+    const subtitleError = validateWords(formData.subtitle, 10, 'Subtitle');
+    const descriptionError = validateWords(formData.description, 20, 'Description');
+
+    if (titleError || subtitleError || descriptionError) {
+      setValidationErrors({
+        title: titleError || '',
+        subtitle: subtitleError || '',
+        description: descriptionError || '',
+      });
+      return; // Stop submission if validation fails
+    }
 
     const data = new FormData();
     data.append('title', formData.title);
@@ -65,6 +104,12 @@ const BannerEdit = () => {
     } catch (err) {
       setError('Failed to update banner');
     }
+  };
+
+  // Validation function to count words
+  const validateWords = (text: string, maxWords: number, fieldName: string): string => {
+    const words = text.trim().split(/\s+/).filter(word => word.length > 0);
+    return words.length > maxWords ? `${fieldName} cannot exceed ${maxWords} words.` : '';
   };
 
   if (!banner) return <Typography>Loading...</Typography>;
@@ -84,6 +129,8 @@ const BannerEdit = () => {
               value={formData.title}
               onChange={handleChange}
               required
+              error={!!validationErrors.title}
+              helperText={validationErrors.title || 'Max 6 words'}
             />
             <TextField
               label="Subtitle"
@@ -91,6 +138,8 @@ const BannerEdit = () => {
               value={formData.subtitle}
               onChange={handleChange}
               required
+              error={!!validationErrors.subtitle}
+              helperText={validationErrors.subtitle || 'Max 10 words'}
             />
             <TextField
               label="Description"
@@ -100,6 +149,8 @@ const BannerEdit = () => {
               multiline
               rows={4}
               required
+              error={!!validationErrors.description}
+              helperText={validationErrors.description || 'Max 20 words'}
             />
             <Box>
               <Typography variant="subtitle1" gutterBottom>
@@ -118,7 +169,12 @@ const BannerEdit = () => {
               label="Active"
             />
             <Box sx={{ mt: 2 }}>
-              <Button type="submit" variant="contained" size="large">
+              <Button
+                type="submit"
+                variant="contained"
+                size="large"
+                disabled={!!validationErrors.title || !!validationErrors.subtitle || !!validationErrors.description}
+              >
                 Update Banner
               </Button>
             </Box>

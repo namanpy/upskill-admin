@@ -3,7 +3,7 @@ import React, { useState, useEffect } from 'react';
 import { Container, Paper, Typography, Box, TextField, Button, Switch, FormControlLabel, Alert } from '@mui/material';
 import { useParams, useNavigate } from 'react-router-dom';
 import { fetchBanner4s, updateBanner4 } from '../../../repo/banners.api';
-import { Banner4 } from '../../../types'
+import { Banner4 } from '../../../types';
 
 const Banner4Edit = () => {
   const { id } = useParams<{ id: string }>();
@@ -11,10 +11,15 @@ const Banner4Edit = () => {
   const [banner4, setBanner4] = useState<Banner4 | null>(null);
   const [formData, setFormData] = useState({
     title: '',
+    descriptions: '',
     active: true,
   });
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [validationErrors, setValidationErrors] = useState({
+    title: '',
+    descriptions: '',
+  });
 
   useEffect(() => {
     const loadBanner4 = async () => {
@@ -24,6 +29,7 @@ const Banner4Edit = () => {
         setBanner4(foundBanner4);
         setFormData({
           title: foundBanner4.title,
+          descriptions: foundBanner4.descriptions || '', // Default to empty string if undefined
           active: foundBanner4.active,
         });
       }
@@ -33,10 +39,26 @@ const Banner4Edit = () => {
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value, type, checked } = e.target;
+    const newValue = type === 'checkbox' ? checked : value;
+
+    // Real-time validation
+    let titleError = '';
+    let descriptionsError = '';
+
+    if (name === 'title') {
+      titleError = validateWords(value, 6, 'Title');
+    } else if (name === 'descriptions') {
+      descriptionsError = validateWords(value, 20, 'Descriptions');
+    }
+
     setFormData((prev) => ({
       ...prev,
-      [name]: type === 'checkbox' ? checked : value,
+      [name]: newValue,
     }));
+    setValidationErrors({
+      title: titleError,
+      descriptions: descriptionsError,
+    });
   };
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -48,8 +70,21 @@ const Banner4Edit = () => {
     e.preventDefault();
     if (!banner4) return;
 
+    // Validate before submission
+    const titleError = validateWords(formData.title, 6, 'Title');
+    const descriptionsError = validateWords(formData.descriptions, 20, 'Descriptions');
+
+    if (titleError || descriptionsError) {
+      setValidationErrors({
+        title: titleError,
+        descriptions: descriptionsError,
+      });
+      return; // Stop submission if validation fails
+    }
+
     const data = new FormData();
     data.append('title', formData.title);
+    data.append('descriptions', formData.descriptions);
     data.append('active', formData.active.toString());
     if (imageFile) data.append('image', imageFile);
 
@@ -59,6 +94,12 @@ const Banner4Edit = () => {
     } catch (err) {
       setError('Failed to update banner4');
     }
+  };
+
+  // Validation function to count words
+  const validateWords = (text: string, maxWords: number, fieldName: string): string => {
+    const words = text.trim().split(/\s+/).filter(word => word.length > 0);
+    return words.length > maxWords ? `${fieldName} cannot exceed ${maxWords} words.` : '';
   };
 
   if (!banner4) return <Typography>Loading...</Typography>;
@@ -78,6 +119,19 @@ const Banner4Edit = () => {
               value={formData.title}
               onChange={handleChange}
               required
+              error={!!validationErrors.title}
+              helperText={validationErrors.title || 'Max 6 words'}
+            />
+            <TextField
+              label="Descriptions"
+              name="descriptions"
+              value={formData.descriptions}
+              onChange={handleChange}
+              multiline
+              rows={4}
+              required
+              error={!!validationErrors.descriptions}
+              helperText={validationErrors.descriptions || 'Max 20 words'}
             />
             <Box>
               <Typography variant="subtitle1" gutterBottom>
@@ -96,7 +150,12 @@ const Banner4Edit = () => {
               label="Active"
             />
             <Box sx={{ mt: 2 }}>
-              <Button type="submit" variant="contained" size="large">
+              <Button
+                type="submit"
+                variant="contained"
+                size="large"
+                disabled={!!validationErrors.title || !!validationErrors.descriptions}
+              >
                 Update
               </Button>
             </Box>

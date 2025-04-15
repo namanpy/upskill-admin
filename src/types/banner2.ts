@@ -3,7 +3,7 @@ export interface PremiumLearningExperience {
     createdAt: string;
     updatedAt: string;
     title: string;
-    description: string;
+    // description: string;
     imageUrl: string;
     active: boolean;
     __v: number;

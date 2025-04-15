@@ -211,11 +211,11 @@ export const deleteStat = async (id: string): Promise<void> => {
 export const fetchBanner3s = async (): Promise<Banner3[]> => {
   try {
     const response = await fetch(`${API_BASE_URL}/banner3`);
-    if (!response.ok) throw new Error('Failed to fetch banner3s');
+    if (!response.ok) throw new Error('Failed to fetch banner3');
     const data = await response.json();
     return data.banner3s || []; // Adjust if response is singular or different
   } catch (error) {
-    console.error('Error fetching banner3s:', error);
+    console.error('Error fetching banner3:', error);
     throw error;
   }
 };

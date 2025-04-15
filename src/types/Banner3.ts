@@ -4,7 +4,7 @@ export interface Banner3 {
     updatedAt: string;
     title: string;
     imageUrl: string;
-    descriptions: string; // Note: 'descriptions' (plural) based on your response
+    // descriptions: string; // Note: 'descriptions' (plural) based on your response
     active: boolean;
     __v: number;
   }

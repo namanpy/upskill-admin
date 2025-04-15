@@ -2,7 +2,7 @@
 import React, { useEffect, useState } from 'react';
 import { Container, Paper, Typography, Grid as MuiGrid, Card, CardContent, CardActions, Button, CircularProgress, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle } from '@mui/material';
 import { fetchBanner3s, updateBanner3Active, deleteBanner3 } from '../../../repo/banners.api';
-import { Banner3 } from '../../../types'
+import { Banner3 } from '../../../types';
 import { useNavigate } from 'react-router-dom';
 
 const Grid = MuiGrid as React.ComponentType<MuiGridProps>;
@@ -71,7 +71,6 @@ const Banner3List = () => {
               <Card>
                 <CardContent>
                   <Typography variant="h6">{banner3.title}</Typography>
-                  <Typography variant="body2">{banner3.descriptions.substring(0, 100)}{banner3.descriptions.length > 100 ? '...' : ''}</Typography>
                   <img src={banner3.imageUrl} alt={banner3.title} style={{ maxWidth: '100%', marginTop: '10px' }} />
                 </CardContent>
                 <CardActions>

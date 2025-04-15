@@ -25,9 +25,28 @@ const BannerAdd = () => {
   });
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [validationErrors, setValidationErrors] = useState({
+    title: '',
+    subtitle: '',
+    description: '',
+  });
 
   const createBannerMutation = useMutation({
     mutationFn: async () => {
+      // Validate before submission
+      const titleError = validateWords(formData.title, 6, 'Title');
+      const subtitleError = validateWords(formData.subtitle, 10, 'Subtitle');
+      const descriptionError = validateWords(formData.description, 20, 'Description');
+
+      if (titleError || subtitleError || descriptionError) {
+        setValidationErrors({
+          title: titleError || '',
+          subtitle: subtitleError || '',
+          description: descriptionError || '',
+        });
+        throw new Error('Please fix the validation errors.');
+      }
+
       const data = new FormData();
       data.append('title', formData.title);
       data.append('subtitle', formData.subtitle);
@@ -47,10 +66,30 @@ const BannerAdd = () => {
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value, type, checked } = e.target;
+    const newValue = type === 'checkbox' ? checked : value;
+
+    // Real-time validation
+    let titleError = '';
+    let subtitleError = '';
+    let descriptionError = '';
+
+    if (name === 'title') {
+      titleError = validateWords(value, 6, 'Title');
+    } else if (name === 'subtitle') {
+      subtitleError = validateWords(value, 10, 'Subtitle');
+    } else if (name === 'description') {
+      descriptionError = validateWords(value, 20, 'Description');
+    }
+
     setFormData((prev) => ({
       ...prev,
-      [name]: type === 'checkbox' ? checked : value,
+      [name]: newValue,
     }));
+    setValidationErrors({
+      title: titleError,
+      subtitle: subtitleError,
+      description: descriptionError,
+    });
   };
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -63,6 +102,12 @@ const BannerAdd = () => {
     createBannerMutation.mutate();
   };
 
+  // Validation function to count words
+  const validateWords = (text: string, maxWords: number, fieldName: string): string => {
+    const words = text.trim().split(/\s+/).filter(word => word.length > 0);
+    return words.length > maxWords ? `${fieldName} cannot exceed ${maxWords} words.` : '';
+  };
+
   return (
     <Container maxWidth="lg" sx={{ mt: 4, mb: 4 }}>
       <Paper sx={{ p: 4, borderRadius: 2 }}>
@@ -70,7 +115,7 @@ const BannerAdd = () => {
           Add New Banner
         </Typography>
 
-        {createBannerMutation.isError && error && (
+        {(createBannerMutation.isError && error) && (
           <Alert severity="error" sx={{ mb: 2 }}>
             {error}
           </Alert>
@@ -84,6 +129,8 @@ const BannerAdd = () => {
               value={formData.title}
               onChange={handleChange}
               required
+              error={!!validationErrors.title}
+              helperText={validationErrors.title || 'Max 6 words'}
             />
             <TextField
               label="Subtitle"
@@ -91,6 +138,8 @@ const BannerAdd = () => {
               value={formData.subtitle}
               onChange={handleChange}
               required
+              error={!!validationErrors.subtitle}
+              helperText={validationErrors.subtitle || 'Max 10 words'}
             />
             <TextField
               label="Description"
@@ -100,6 +149,8 @@ const BannerAdd = () => {
               multiline
               rows={4}
               required
+              error={!!validationErrors.description}
+              helperText={validationErrors.description || 'Max 20 words'}
             />
             <Box>
               <Typography variant="subtitle1" gutterBottom>
@@ -122,7 +173,7 @@ const BannerAdd = () => {
                 type="submit"
                 variant="contained"
                 size="large"
-                disabled={createBannerMutation.isPending}
+                disabled={createBannerMutation.isPending || !!validationErrors.title || !!validationErrors.subtitle || !!validationErrors.description}
               >
                 {createBannerMutation.isPending ? 'Creating...' : 'Create Banner'}
               </Button>
