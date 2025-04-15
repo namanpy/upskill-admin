@@ -48,6 +48,15 @@ const menuItems: MenuItem[] = [
     ],
   },
   {
+    displayName: "Demo Sessions",
+    route: "/demosessions",
+    icon: CategoryIcon,
+    subItems: [
+      { displayName: "All Demo Sessions", route: "/demosessions/list" },
+      { displayName: "Add Demo Sessions", route: "/demosessions/add" },
+    ],
+  },
+  {
     displayName: "Category",
     route: "/category",
     icon: CategoryIcon,

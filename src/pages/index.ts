@@ -47,3 +47,7 @@ export { default as BlogsList } from './blogs/blogs-list'
 export { default as UniversitiesAdd } from './universities/universities-add'
 export { default as UniversitiesEdit } from './universities/universities-edit'
 export { default as UniversitiesList } from './universities/universities-list'
+
+export{ default as DemoSessionsList} from './demosessions/demosessions-list';
+export{ default as DemoSessionsAdd} from './demosessions/demosessions-add';
+export{ default as DemoSessionsEdit} from './demosessions/demosessions-edit';

@@ -1,34 +1,6 @@
-import { Banner, PremiumLearningExperience, Stat, Banner3, Banner4, Story,HiringPartner, Blog, University } from "../types/index";
+import { Banner, PremiumLearningExperience, Stat, Banner3, Banner4, Story,HiringPartner, Blog, University, DemoSession } from "../types/index";
 
 const API_BASE_URL = 'https://shark-app-ixo3s.ondigitalocean.app';
-
-// export const fetchBanners = async (): Promise<Banner[]> => {
-//     try {
-//       const response = await fetch(`${API_BASE_URL}/banners`);
-//       if (!response.ok) throw new Error('Failed to fetch banners');
-//       const data = await response.json();
-//       return data.banners || []; // Return the 'banners' array from the response
-//     } catch (error) {
-//       console.error('Error fetching banners:', error);
-//       throw error;
-//     }
-//   };
-  
-//   export const createBanner = async (formData: FormData): Promise<Banner> => {
-//     try {
-//       const response = await fetch(`${API_BASE_URL}/banners`, {
-//         method: 'POST',
-//         body: formData,
-//       });
-//       if (!response.ok) throw new Error('Failed to create banner');
-//       return await response.json();
-//     } catch (error) {
-//       console.error('Error creating banner:', error);
-//       throw error;
-//     }
-//   };
-
-
 
 export const fetchBanners = async (): Promise<Banner[]> => {
   try {
@@ -70,20 +42,6 @@ export const updateBannerActive = async (id: string, active: boolean): Promise<B
     throw error;
   }
 };
-
-// export const updateBanner = async (id: string, formData: FormData): Promise<Banner> => {
-//   try {
-//     const response = await fetch(`${API_BASE_URL}/banners/${id}`, {
-//       method: 'PUT',
-//       body: formData,
-//     });
-//     if (!response.ok) throw new Error('Failed to update banner');
-//     return await response.json();
-//   } catch (error) {
-//     console.error('Error updating banner:', error);
-//     throw error;
-//   }
-// };
 
 export const deleteBanner = async (id: string): Promise<void> => {
   try {
@@ -598,17 +556,6 @@ export const deleteBlog = async (id: string): Promise<void> => {
 
 
 // Universities-related functions
-// export const fetchUniversities = async (): Promise<University[]> => {
-//   try {
-//     const response = await fetch(`${API_BASE_URL}/universities`);
-//     if (!response.ok) throw new Error('Failed to fetch universities');
-//     const data = await response.json();
-//     return data.universities || []; // Matches the array response
-//   } catch (error) {
-//     console.error('Error fetching universities:', error);
-//     throw error;
-//   }
-// };
 
 export const fetchUniversities = async (): Promise<University[]> => {
   try {
@@ -673,6 +620,63 @@ export const deleteUniversity = async (id: string): Promise<void> => {
     if (!response.ok) throw new Error('Failed to delete university');
   } catch (error) {
     console.error('Error deleting university:', error);
+    throw error;
+  }
+};
+
+
+// Fetch all demo sessions (GET)
+export const fetchDemoSessions = async (): Promise<DemoSession[]> => {
+  try {
+    const response = await fetch(`${API_BASE_URL}/demosessions`);
+    if (!response.ok) throw new Error('Failed to fetch demo sessions');
+    const data = await response.json();
+    return data.demoSessions || []; // Response structure ke hisab se
+  } catch (error) {
+    console.error('Error fetching demo sessions:', error);
+    throw error;
+  }
+};
+
+// Create a new demo session (POST)
+export const createDemoSession = async (formData: FormData): Promise<DemoSession> => {
+  try {
+    const response = await fetch(`${API_BASE_URL}/demosessions`, {
+      method: 'POST',
+      body: formData,
+    });
+    if (!response.ok) throw new Error('Failed to create demo session');
+    return await response.json();
+  } catch (error) {
+    console.error('Error creating demo session:', error);
+    throw error;
+  }
+};
+
+// Update an existing demo session (PUT)
+export const updateDemoSession = async (id: string, formData: FormData): Promise<DemoSession> => {
+  try {
+    const response = await fetch(`${API_BASE_URL}/demosessions/${id}`, {
+      method: 'PUT',
+      body: formData,
+    });
+    if (!response.ok) throw new Error('Failed to update demo session');
+    return await response.json();
+  } catch (error) {
+    console.error('Error updating demo session:', error);
+    throw error;
+  }
+};
+
+// Delete a demo session (DELETE)
+export const deleteDemoSession = async (id: string): Promise<void> => {
+  try {
+    const response = await fetch(`${API_BASE_URL}/demosessions/${id}`, {
+      method: 'DELETE',
+    });
+    if (!response.ok) throw new Error('Failed to delete demo session');
+  } catch (error) {
+    console.error('Error deleting demo session:', error);
     throw error;
   }
 };

@@ -50,7 +50,10 @@ import {
   BlogsEdit,
   UniversitiesList,
   UniversitiesAdd,
-  UniversitiesEdit
+  UniversitiesEdit,
+  DemoSessionsList,
+  DemoSessionsAdd,
+  DemoSessionsEdit,
 } from "./pages/index";
 import BatchEdit from "./pages/batches/batches-edit";
 import OrdersList from "./pages/orders/orders.list";
@@ -417,7 +420,30 @@ const AppContent = () => {
                 </ProtectedRoute>
               }
             />
-
+            <Route
+              path="/demosessions/edit/:id"
+              element={
+                <ProtectedRoute>
+                  <DemoSessionsEdit />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/demosessions/list"
+              element={
+                <ProtectedRoute>
+                  <DemoSessionsList />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/demosessions/add"
+              element={
+                <ProtectedRoute>
+                  <DemoSessionsAdd />
+                </ProtectedRoute>
+              }
+            />
             <Route path="*" element={<div>404 Not Found</div>} />
           </Routes>
         </div>

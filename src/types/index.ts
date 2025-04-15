@@ -8,6 +8,7 @@ import { Banner4 } from "./banner4";
 import { Story } from "./Story";
 import { HiringPartner } from "./HiringPartner";
 import { University } from './University'
+import { DemoSession } from './DemoSession';
 
 
 
@@ -20,5 +21,6 @@ export type {
     Story,  
     HiringPartner,
     Blog,
-    University
+    University,
+    DemoSession
 }
