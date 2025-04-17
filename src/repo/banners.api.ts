@@ -1,6 +1,6 @@
 import { Banner, PremiumLearningExperience, Stat, Banner3, Banner4, Story,HiringPartner, Blog, University, DemoSession } from "../types/index";
 
-const API_BASE_URL = 'https://shark-app-ixo3s.ondigitalocean.app';
+const API_BASE_URL = 'https://api.upskillab.com';
 
 export const fetchBanners = async (): Promise<Banner[]> => {
   try {

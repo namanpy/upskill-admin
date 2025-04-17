@@ -693,4 +693,4 @@ class ApiClient {
   }
 }
 
-export default new ApiClient("https://shark-app-ixo3s.ondigitalocean.app");
+export default new ApiClient("https://api.upskillab.com");
