@@ -178,8 +178,8 @@ const CourseEditForm = () => {
       setError("");
       setOpenSnackbar(true);
       setTimeout(() => {
-        navigate("/courses");
-      }, 2000);
+        navigate("/courses/list");
+      }, 4000);
     },
     onError: (error: any) => {
       setOpenSnackbar(true);

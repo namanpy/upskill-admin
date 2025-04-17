@@ -402,7 +402,7 @@ class ApiClient {
       throw new Error(`Failed to add course: ${await response.text()}`);
     }
 
-    return response.json();
+    return await response.json();
   }
 
   async getCourseByCode(
@@ -439,13 +439,13 @@ class ApiClient {
         body: JSON.stringify(courseDataWithoutId),
       }
     );
-
-    console.log("Response:", await response.json());
+    const res=await response.json()
+    console.log("Response:", res);
     if (!response.ok) {
       throw new Error(`Failed to update course: ${response.statusText}`);
     }
 
-    return response.json();
+    return res;
   }
 
   async getCourseDisplay(

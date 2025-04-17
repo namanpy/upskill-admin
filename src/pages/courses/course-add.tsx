@@ -144,7 +144,7 @@ const AddCourseForm = () => {
       setOpenSnackbar(true);
       setTimeout(() => {
         navigate("/courses/list"); // Adjust path as needed
-      }, 2000);
+      }, 3000);
     },
     onError: (error: any) => {
       setOpenSnackbar(true);
