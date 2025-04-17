@@ -401,7 +401,7 @@ const AddCourseForm = () => {
             <TextField
               fullWidth
               type="number"
-              label="Course Duration (hours)"
+              label="Course Duration (Days)"
               name="courseDuration"
               value={course.courseDuration}
               onChange={handleChange}

@@ -639,11 +639,23 @@ export const fetchDemoSessions = async (): Promise<DemoSession[]> => {
 };
 
 // Create a new demo session (POST)
-export const createDemoSession = async (formData: FormData): Promise<DemoSession> => {
+interface DemoSessionInput {
+  fullName: string;
+  email: string;
+  phoneNumber: string;
+  course: string;
+  sourse: 'upskillLab' | 'counselHub';
+  experience?: string;
+}
+
+export const createDemoSession = async (data: DemoSessionInput): Promise<DemoSession> => {
   try {
     const response = await fetch(`${API_BASE_URL}/demosessions`, {
       method: 'POST',
-      body: formData,
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(data),
     });
     if (!response.ok) throw new Error('Failed to create demo session');
     return await response.json();
@@ -654,11 +666,14 @@ export const createDemoSession = async (formData: FormData): Promise<DemoSession
 };
 
 // Update an existing demo session (PUT)
-export const updateDemoSession = async (id: string, formData: FormData): Promise<DemoSession> => {
+export const updateDemoSession = async (id: string, data: DemoSessionInput): Promise<DemoSession> => {
   try {
     const response = await fetch(`${API_BASE_URL}/demosessions/${id}`, {
       method: 'PUT',
-      body: formData,
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(data),
     });
     if (!response.ok) throw new Error('Failed to update demo session');
     return await response.json();

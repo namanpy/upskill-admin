@@ -112,7 +112,7 @@ const CourseList: React.FC = () => {
     },
     {
       field: "courseDuration",
-      headerName: "Duration (hrs)",
+      headerName: "Duration (days)",
       width: 130,
       type: "number",
       sortable: true,
